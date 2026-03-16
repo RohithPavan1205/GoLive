@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/Mute.png</file>
+        <file>icons/Pause.png</file>
+        <file>icons/Play.png</file>
+        <file>icons/Record.png</file>
+        <file>icons/Settings.png</file>
+        <file>icons/Stop.png</file>
+        <file>icons/Stream.png</file>
+        <file>icons/Volume.png</file>
+        <file>icons/capture.png</file>
+        <file>mainwindow.ui</file>
+    </qresource>
+</RCC>

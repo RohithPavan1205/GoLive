@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSCameraUsageDescription</key>
+    <string>GoLive Studio needs access to the camera to display video inputs.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>GoLive Studio needs access to the microphone for audio streaming.</string>
+    <key>CFBundleExecutable</key>
+    <string>JaiHanuman</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.golive.studio</string>
+    <key>CFBundleName</key>
+    <string>GoLive Studio</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.15</string>
+</dict>
+</plist>

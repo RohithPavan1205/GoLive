@@ -1,0 +1,2 @@
+set(__QT_DEPLOY_TARGET_JaiHanuman_FILE /Users/rohithpavan/Downloads/JaiHanuman/JaiHanuman.app/Contents/MacOS/JaiHanuman)
+set(__QT_DEPLOY_TARGET_JaiHanuman_TYPE EXECUTABLE)
