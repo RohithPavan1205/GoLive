@@ -154,20 +154,20 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
         QVideoFrame frame(image);
         m_slots[slotId]->videoSink->setVideoFrame(frame);
         
-        // Lambda for compositing to reuse logic for Preview and Program
-        auto getCompositedFrame = [&](const QImage &source) -> QVideoFrame {
-            if (!m_hasEffect) return QVideoFrame(source.scaled(m_outputWidth, m_outputHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+        // Lambda for compositing with dynamic size
+        auto getCompositedFrame = [&](const QImage &source, int w, int h) -> QVideoFrame {
+            if (!m_hasEffect) return QVideoFrame(source.scaled(w, h, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
             
-            QImage canvas(m_outputWidth, m_outputHeight, QImage::Format_ARGB32_Premultiplied);
+            QImage canvas(w, h, QImage::Format_ARGB32_Premultiplied);
             canvas.fill(Qt::black);
             QPainter painter(&canvas);
             painter.setRenderHint(QPainter::SmoothPixmapTransform);
             
             QRectF targetRect(
-                m_currentEffectOpening.x() * m_outputWidth,
-                m_currentEffectOpening.y() * m_outputHeight,
-                m_currentEffectOpening.width() * m_outputWidth,
-                m_currentEffectOpening.height() * m_outputHeight
+                m_currentEffectOpening.x() * w,
+                m_currentEffectOpening.y() * h,
+                m_currentEffectOpening.width() * w,
+                m_currentEffectOpening.height() * h
             );
             painter.drawImage(targetRect, source);
             painter.drawImage(canvas.rect(), m_currentEffectImage);
@@ -175,19 +175,25 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
             return QVideoFrame(canvas);
         };
 
-        // 1. Send to Preview Monitor (Left - Slot -1)
+        // 1. Send to Preview Monitor (Left - Slot -1) - USES QUALITY SETTINGS
         if (slotId == m_previewSlotId && m_slots.contains(-1)) {
-            m_slots[-1]->videoSink->setVideoFrame(getCompositedFrame(image));
+            // FPS Throttling for Preview
+            qint64 now = QDateTime::currentMSecsSinceEpoch();
+            static qint64 lastPreviewTime = 0;
+            bool shouldRender = true;
+            if (m_outputFps > 0) {
+                if (now - lastPreviewTime < (1000 / m_outputFps)) shouldRender = false;
+            }
+            if (shouldRender) {
+                lastPreviewTime = now;
+                m_slots[-1]->videoSink->setVideoFrame(getCompositedFrame(image, m_outputWidth, m_outputHeight));
+            }
         }
 
-        // 2. Send to Program Monitor (Right - Slot 0) with FPS Control
+        // 2. Send to Program Monitor (Right - Slot 0) - STAYS AT FULL QUALITY (1080p)
         if (slotId == m_programSlotId && m_slots.contains(0)) {
-            qint64 now = QDateTime::currentMSecsSinceEpoch();
-            if (m_outputFps > 0) {
-                if (now - m_lastFrameTime < (1000 / m_outputFps)) return;
-            }
-            m_lastFrameTime = now;
-            m_slots[0]->videoSink->setVideoFrame(getCompositedFrame(image));
+            // Program always runs at high quality/full speed for a smooth 'Live' view
+            m_slots[0]->videoSink->setVideoFrame(getCompositedFrame(image, 1920, 1080));
         }
     }
 }
