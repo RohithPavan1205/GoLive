@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include <QComboBox>
 #include <QPushButton>
+#include <memory>
 
 class CameraManager;
 
@@ -22,17 +23,22 @@ public:
 private slots:
     void onCameraSelected(QListWidgetItem *item);
     void onResolutionChanged(int index);
+    void populateCameraList();
     void onOkClicked();
 
 private:
     void setupUI();
-    void populateCameraList();
     void populateResolutions(const QString &cameraId);
+    void populateFrameRates();
     
     CameraManager *m_cameraManager;
+    
+    // UI Components
     QListWidget *m_cameraListWidget;
     QComboBox *m_resolutionComboBox;
     QComboBox *m_fpsComboBox;
+    QPushButton *m_okButton;
+    QPushButton *m_cancelButton;
     
     QString m_selectedCameraId;
     int m_selectedWidth;
