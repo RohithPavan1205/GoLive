@@ -9,6 +9,10 @@
         <file>icons/Stream.png</file>
         <file>icons/Volume.png</file>
         <file>icons/capture.png</file>
+        <file>icons/Swap.png</file>
+        <file>icons/Take.png</file>
+        <file>icons/Text.png</file>
+        <file>icons/Clear.png</file>
         <file>mainwindow.ui</file>
     </qresource>
 </RCC>
