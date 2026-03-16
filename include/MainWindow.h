@@ -35,6 +35,7 @@ private:
     EffectsManager *m_effectsManager;
     
     void setupUi();
+    void setupOutputControls();
     void fixControlsLayout();
 };
 

@@ -7,6 +7,10 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QVBoxLayout>
+#include <QComboBox>
+#include <QStackedWidget>
+#include <QToolButton>
+#include <QDateTime>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -56,10 +60,14 @@ MainWindow::MainWindow(QWidget *parent)
     if (tree && stack) {
         tree->setFixedWidth(130);
         m_effectsManager->setupUI(tree, stack, this);
+        
+        connect(m_effectsManager, &EffectsManager::effectApplied, m_cameraManager, &CameraManager::setEffect);
+        connect(m_effectsManager, &EffectsManager::effectCleared, m_cameraManager, &CameraManager::clearEffect);
     }
 
     fixControlsLayout();
     setupUi();
+    setupOutputControls();
 }
 
 MainWindow::~MainWindow() {}
@@ -177,5 +185,94 @@ void MainWindow::onMediaSettingsClicked(int id) {
     MediaSelectionDialog dialog(this);
     if (dialog.exec() == QDialog::Accepted) {
         m_cameraManager->openFileForInput(id, dialog.getFilePath(), dialog.isLooping());
+    }
+}
+
+void MainWindow::setupOutputControls() {
+    QComboBox *sizeCombo = this->findChild<QComboBox*>("outputSizeComboBox");
+    QComboBox *fpsCombo = this->findChild<QComboBox*>("fpsComboBox");
+    QComboBox *audioCombo = this->findChild<QComboBox*>("audioOutputComboBox");
+
+    if (sizeCombo) {
+        sizeCombo->clear();
+        sizeCombo->addItem("1080p (FHD)", QSize(1920, 1080));
+        sizeCombo->addItem("720p (HD)", QSize(1280, 720));
+        sizeCombo->addItem("576p (PAL)", QSize(1024, 576));
+        sizeCombo->addItem("480p (SD)", QSize(854, 480));
+        sizeCombo->addItem("360p", QSize(640, 360));
+        sizeCombo->addItem("240p", QSize(426, 240));
+        sizeCombo->addItem("4K (UHD)", QSize(3840, 2160));
+        
+        auto updateSettings = [this, sizeCombo, fpsCombo]() {
+            QSize size = sizeCombo->currentData().toSize();
+            int fps = 30;
+            if (fpsCombo) {
+                QString fpsText = fpsCombo->currentText();
+                fpsText.remove(" FPS");
+                fps = fpsText.toInt();
+            }
+            if (m_cameraManager) m_cameraManager->setOutputSettings(size.width(), size.height(), fps);
+        };
+
+        connect(sizeCombo, &QComboBox::currentIndexChanged, this, updateSettings);
+    }
+
+    if (fpsCombo) {
+        fpsCombo->clear();
+        QStringList fpsOptions = {"24 FPS", "25 FPS", "30 FPS", "50 FPS", "60 FPS"};
+        fpsCombo->addItems(fpsOptions);
+        fpsCombo->setCurrentText("30 FPS");
+        
+        auto updateSettings = [this, sizeCombo, fpsCombo]() {
+            int width = 1920, height = 1080;
+            if (sizeCombo) {
+                QSize size = sizeCombo->currentData().toSize();
+                width = size.width();
+                height = size.height();
+            }
+            QString fpsText = fpsCombo->currentText();
+            fpsText.remove(" FPS");
+            int fps = fpsText.toInt();
+            if (m_cameraManager) m_cameraManager->setOutputSettings(width, height, fps);
+        };
+        connect(fpsCombo, &QComboBox::currentIndexChanged, this, updateSettings);
+    }
+
+    if (audioCombo && m_cameraManager) {
+        audioCombo->clear();
+        audioCombo->addItem("Default Audio Device", "");
+        QList<DeviceInfo> audios = m_cameraManager->getAvailableAudioDevices();
+        for (const auto &device : audios) {
+            audioCombo->addItem(device.name, device.id);
+        }
+    }
+
+    // Set icons for control panel
+    QToolButton *swapBtn = this->findChild<QToolButton*>("controlsBtn1");
+    QToolButton *takeBtn = this->findChild<QToolButton*>("controlsBtn2");
+    QToolButton *recordBtn = this->findChild<QToolButton*>("recordBtn1");
+    QToolButton *recordSetBtn = this->findChild<QToolButton*>("recordBtn2");
+    QToolButton *stream1Btn = this->findChild<QToolButton*>("stream1Btn1");
+    QToolButton *stream1SetBtn = this->findChild<QToolButton*>("stream1Btn2");
+    QToolButton *stream2Btn = this->findChild<QToolButton*>("stream2Btn1");
+    QToolButton *stream2SetBtn = this->findChild<QToolButton*>("stream2Btn2");
+    QToolButton *textBtn = this->findChild<QToolButton*>("textOverlayBtn1");
+    QToolButton *textSetBtn = this->findChild<QToolButton*>("textOverlayBtn2");
+
+    if (swapBtn) swapBtn->setIcon(QIcon(":/icons/Swap.png"));
+    if (takeBtn) takeBtn->setIcon(QIcon(":/icons/Take.png"));
+    if (recordBtn) recordBtn->setIcon(QIcon(":/icons/Record.png"));
+    if (recordSetBtn) recordSetBtn->setIcon(QIcon(":/icons/Settings.png"));
+    if (stream1Btn) stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
+    if (stream1SetBtn) stream1SetBtn->setIcon(QIcon(":/icons/Settings.png"));
+    if (stream2Btn) stream2Btn->setIcon(QIcon(":/icons/Stream.png"));
+    if (stream2SetBtn) stream2SetBtn->setIcon(QIcon(":/icons/Settings.png"));
+    if (textBtn) textBtn->setIcon(QIcon(":/icons/Text.png"));
+    if (textSetBtn) textSetBtn->setIcon(QIcon(":/icons/Settings.png"));
+
+    // Set icon sizes for visibility
+    QList<QToolButton*> allBtns = {swapBtn, takeBtn, recordBtn, recordSetBtn, stream1Btn, stream1SetBtn, stream2Btn, stream2SetBtn, textBtn, textSetBtn};
+    for (QToolButton* btn : allBtns) {
+        if (btn) btn->setIconSize(QSize(24, 24));
     }
 }
