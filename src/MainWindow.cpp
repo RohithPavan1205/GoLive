@@ -48,7 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
     m_cameraManager = new CameraManager(this);
     
     QFrame *previewFrame = this->findChild<QFrame*>("outputPreview");
-    if (previewFrame) m_cameraManager->setupInput(0, previewFrame);
+    QFrame *programFrame = this->findChild<QFrame*>("programPreview");
+    if (previewFrame) m_cameraManager->setupInput(-1, previewFrame); // Slot -1: Preview (Staging)
+    if (programFrame) m_cameraManager->setupInput(0, programFrame);  // Slot 0: Program (Live/Broadcast)
     
     QString bundlePath = QCoreApplication::applicationDirPath() + "/../Resources/effects";
     QString effectsPath = QDir(bundlePath).exists() ? bundlePath : QCoreApplication::applicationDirPath() + "/effects";
@@ -259,8 +261,14 @@ void MainWindow::setupOutputControls() {
     QToolButton *textBtn = this->findChild<QToolButton*>("textOverlayBtn1");
     QToolButton *textSetBtn = this->findChild<QToolButton*>("textOverlayBtn2");
 
-    if (swapBtn) swapBtn->setIcon(QIcon(":/icons/Swap.png"));
-    if (takeBtn) takeBtn->setIcon(QIcon(":/icons/Take.png"));
+    if (swapBtn) {
+        swapBtn->setIcon(QIcon(":/icons/Swap.png"));
+        connect(swapBtn, &QToolButton::clicked, m_cameraManager, &CameraManager::swap);
+    }
+    if (takeBtn) {
+        takeBtn->setIcon(QIcon(":/icons/Take.png"));
+        connect(takeBtn, &QToolButton::clicked, m_cameraManager, &CameraManager::transition);
+    }
     if (recordBtn) recordBtn->setIcon(QIcon(":/icons/Record.png"));
     if (recordSetBtn) recordSetBtn->setIcon(QIcon(":/icons/Settings.png"));
     if (stream1Btn) stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
