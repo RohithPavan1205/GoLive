@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <ui version="4.0">
  <class>MainWindow</class>
- <widget class="QMainWindow" name="GoLiveMainWindow">
+ <widget class="QMainWindow" name="MainWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -31,7 +31,7 @@
            <string notr="true">#outputPreview { background-color: black; border-radius: 8px; border: 2px solid #333333; }</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Shadow::Raised</enum>
@@ -301,7 +301,7 @@
 
           <item>
            <spacer name="verticalSpacer_controlPanel">
-            <property name="orientation"><enum>Qt::Orientation::Vertical</enum></property>
+            <property name="orientation"><enum>Vertical</enum></property>
            </spacer>
           </item>
          </layout>
@@ -322,7 +322,7 @@
          <string notr="true">#programPreview { background-color: black; border-radius: 8px; border: 2px solid #333333; }</string>
         </property>
         <property name="frameShape">
-         <enum>QFrame::Shape::StyledPanel</enum>
+         <enum>StyledPanel</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Shadow::Raised</enum>
@@ -432,7 +432,7 @@
            <string notr="true">background-color: #383838; border-radius: 5px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Shadow::Raised</enum>
@@ -576,7 +576,7 @@
               <string notr="true">background-color: black; border-radius: 3px;</string>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::StyledPanel</enum>
+              <enum>StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Raised</enum>
@@ -604,7 +604,7 @@
            <string notr="true">background-color: #383838; border-radius: 5px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Shadow::Raised</enum>
@@ -748,7 +748,7 @@
               <string notr="true">background-color: black; border-radius: 3px;</string>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::StyledPanel</enum>
+              <enum>StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Raised</enum>
@@ -929,7 +929,7 @@
            <string notr="true">background-color: #383838; border-radius: 5px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Shadow::Raised</enum>
@@ -1073,7 +1073,7 @@
               <string notr="true">background-color: black; border-radius: 3px;</string>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::StyledPanel</enum>
+              <enum>StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Raised</enum>
@@ -1101,7 +1101,7 @@
            <string notr="true">background-color: #383838; border-radius: 5px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Shadow::Raised</enum>
@@ -1245,7 +1245,7 @@
               <string notr="true">background-color: black; border-radius: 3px;</string>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::StyledPanel</enum>
+              <enum>StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Raised</enum>
@@ -1273,7 +1273,7 @@
            <string notr="true">background-color: #383838; border-radius: 5px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Shadow::Raised</enum>
@@ -1417,7 +1417,7 @@
               <string notr="true">background-color: black; border-radius: 3px;</string>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::StyledPanel</enum>
+              <enum>StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Raised</enum>
@@ -1445,7 +1445,7 @@
            <string notr="true">background-color: #383838; border-radius: 5px;</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::Shape::StyledPanel</enum>
+           <enum>StyledPanel</enum>
           </property>
           <property name="frameShadow">
            <enum>QFrame::Shadow::Raised</enum>
@@ -1589,7 +1589,7 @@
               <string notr="true">background-color: black; border-radius: 3px;</string>
              </property>
              <property name="frameShape">
-              <enum>QFrame::Shape::StyledPanel</enum>
+              <enum>StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Shadow::Raised</enum>
@@ -1650,7 +1650,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1675,7 +1675,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1700,7 +1700,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1725,7 +1725,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1750,7 +1750,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1775,7 +1775,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1800,7 +1800,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1825,7 +1825,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1850,7 +1850,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1875,7 +1875,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1900,7 +1900,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1925,7 +1925,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1950,7 +1950,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -1975,7 +1975,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2000,7 +2000,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2025,7 +2025,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2101,7 +2101,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2126,7 +2126,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2151,7 +2151,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2176,7 +2176,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2201,7 +2201,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2226,7 +2226,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2251,7 +2251,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2276,7 +2276,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2301,7 +2301,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2326,7 +2326,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2351,7 +2351,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2376,7 +2376,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2401,7 +2401,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2426,7 +2426,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2451,7 +2451,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2476,7 +2476,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2539,7 +2539,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2564,7 +2564,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2589,7 +2589,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2614,7 +2614,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2639,7 +2639,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2664,7 +2664,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2689,7 +2689,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2714,7 +2714,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2752,7 +2752,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2777,7 +2777,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2802,7 +2802,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2827,7 +2827,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2852,7 +2852,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2877,7 +2877,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2902,7 +2902,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2927,7 +2927,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -2990,7 +2990,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3015,7 +3015,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3040,7 +3040,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3065,7 +3065,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3090,7 +3090,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3115,7 +3115,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3140,7 +3140,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3165,7 +3165,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3190,7 +3190,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3215,7 +3215,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3240,7 +3240,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3265,7 +3265,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3290,7 +3290,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3315,7 +3315,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3340,7 +3340,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3365,7 +3365,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3444,7 +3444,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3469,7 +3469,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3494,7 +3494,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3519,7 +3519,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3544,7 +3544,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3569,7 +3569,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3594,7 +3594,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3619,7 +3619,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3644,7 +3644,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3669,7 +3669,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3694,7 +3694,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3719,7 +3719,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3744,7 +3744,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3769,7 +3769,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3794,7 +3794,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3819,7 +3819,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3895,7 +3895,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3920,7 +3920,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3945,7 +3945,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3970,7 +3970,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -3995,7 +3995,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4020,7 +4020,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4045,7 +4045,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4070,7 +4070,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4095,7 +4095,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4120,7 +4120,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4145,7 +4145,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4170,7 +4170,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4195,7 +4195,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4220,7 +4220,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4245,7 +4245,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4270,7 +4270,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4346,7 +4346,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4371,7 +4371,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4396,7 +4396,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4421,7 +4421,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4446,7 +4446,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4471,7 +4471,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4496,7 +4496,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4521,7 +4521,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4546,7 +4546,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4571,7 +4571,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4596,7 +4596,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4621,7 +4621,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4646,7 +4646,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4671,7 +4671,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4696,7 +4696,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>
@@ -4721,7 +4721,7 @@
                  <string notr="true">background-color: #404040; border-radius: 8px;</string>
                 </property>
                 <property name="frameShape">
-                 <enum>QFrame::Shape::StyledPanel</enum>
+                 <enum>StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Shadow::Raised</enum>

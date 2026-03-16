@@ -233,8 +233,7 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
 
             // 3. Record if active
             if (m_recorder && m_recorder->isRecording()) {
-                qint64 ts = QDateTime::currentMSecsSinceEpoch() - m_recordingStartTime;
-                m_recorder->writeFrame(canvas, ts);
+                m_recorder->writeFrame(canvas);
             }
         }
     }

@@ -31,11 +31,16 @@ set(SOURCES
     src/CameraSelectionDialog.cpp
     src/MediaSelectionDialog.cpp
     src/EffectsManager.cpp
-    src/NativeCamera.mm
-    src/VideoRecorder.mm
+    src/VideoRecorder.cpp
     src/RecordingSettingsDialog.cpp
     resources.qrc
 )
+
+if(APPLE)
+    list(APPEND SOURCES src/NativeCamera.mm)
+else()
+    list(APPEND SOURCES src/NativeCamera.cpp)
+endif()
 
 add_executable(JaiHanuman MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 

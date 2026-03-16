@@ -4,6 +4,7 @@
 #include <QString>
 #include <QImage>
 #include <QObject>
+#include <QProcess>
 
 class VideoRecorder : public QObject {
     Q_OBJECT
@@ -14,11 +15,11 @@ public:
 
     bool startRecording(const QString &filePath, int width, int height, int fps);
     void stopRecording();
-    void writeFrame(const QImage &frame, qint64 timestampMs);
+    void writeFrame(const QImage &frame);
     bool isRecording() const { return m_isRecording; }
 
 private:
-    void *m_pimpl; // Using opaque pointer for AVFoundation objects
+    QProcess *m_ffmpegProcess = nullptr;
     bool m_isRecording = false;
     int m_width;
     int m_height;

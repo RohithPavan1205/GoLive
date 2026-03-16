@@ -2,16 +2,13 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QUiLoader>
-#include <QFile>
-#include <QPushButton>
+#include <QString>
 #include <QEvent>
-#include <QSlider>
-#include <QTreeWidget>
-#include <QStackedWidget>
 #include <QResizeEvent>
 #include "CameraManager.h"
 #include "EffectsManager.h"
+
+namespace Ui { class MainWindow; }
 
 class MainWindow : public QMainWindow
 {
@@ -30,7 +27,7 @@ private slots:
     void onMediaSettingsClicked(int id);
 
 private:
-    QWidget *m_uiRoot;
+    Ui::MainWindow *ui;
     CameraManager *m_cameraManager;
     EffectsManager *m_effectsManager;
     QString m_recordingPath;

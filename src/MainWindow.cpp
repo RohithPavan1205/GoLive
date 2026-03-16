@@ -14,45 +14,19 @@
 #include <QMessageBox>
 #include <QStandardPaths>
 #include "RecordingSettingsDialog.h"
+#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
     , m_recordingPath(QStandardPaths::writableLocation(QStandardPaths::MoviesLocation) + "/GoLive_Recordings")
 {
-    QUiLoader loader;
-    QFile file(":/mainwindow.ui");
-    if (!file.open(QFile::ReadOnly)) {
-        QMessageBox::critical(this, "Error", "Could not open mainwindow.ui from resources");
-        return;
-    }
-
-    m_uiRoot = loader.load(&file, nullptr);
-    file.close();
-
-    if (!m_uiRoot) {
-        QMessageBox::critical(this, "Error", "Could not load mainwindow.ui");
-        return;
-    }
-
-    QMainWindow *loadedMainWin = qobject_cast<QMainWindow*>(m_uiRoot);
-    if (loadedMainWin) {
-        QWidget *central = loadedMainWin->centralWidget();
-        if (central) {
-            central->setParent(this);
-            setCentralWidget(central);
-        }
-        if (loadedMainWin->menuBar()) setMenuBar(loadedMainWin->menuBar());
-        if (loadedMainWin->statusBar()) setStatusBar(loadedMainWin->statusBar());
-        setWindowTitle(loadedMainWin->windowTitle());
-        resize(loadedMainWin->size());
-    } else {
-        setCentralWidget(m_uiRoot);
-    }
+    ui->setupUi(this);
 
     m_cameraManager = new CameraManager(this);
     
-    QFrame *previewFrame = this->findChild<QFrame*>("outputPreview");
-    QFrame *programFrame = this->findChild<QFrame*>("programPreview");
+    QFrame *previewFrame = ui->outputPreview;
+    QFrame *programFrame = ui->programPreview;
     if (previewFrame) m_cameraManager->setupInput(-1, previewFrame); // Slot -1: Preview (Staging)
     if (programFrame) m_cameraManager->setupInput(0, programFrame);  // Slot 0: Program (Live/Broadcast)
     
@@ -76,7 +50,10 @@ MainWindow::MainWindow(QWidget *parent)
     setupOutputControls();
 }
 
-MainWindow::~MainWindow() {}
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 
 void MainWindow::fixControlsLayout() {
     // Correct name from UI
@@ -254,16 +231,17 @@ void MainWindow::setupOutputControls() {
     }
 
     // Set icons for control panel
-    QToolButton *swapBtn = this->findChild<QToolButton*>("controlsBtn1");
-    QToolButton *takeBtn = this->findChild<QToolButton*>("controlsBtn2");
-    QToolButton *recordBtn = this->findChild<QToolButton*>("recordBtn1");
-    QToolButton *recordSetBtn = this->findChild<QToolButton*>("recordBtn2");
-    QToolButton *stream1Btn = this->findChild<QToolButton*>("stream1Btn1");
-    QToolButton *stream1SetBtn = this->findChild<QToolButton*>("stream1Btn2");
-    QToolButton *stream2Btn = this->findChild<QToolButton*>("stream2Btn1");
-    QToolButton *stream2SetBtn = this->findChild<QToolButton*>("stream2Btn2");
-    QToolButton *textBtn = this->findChild<QToolButton*>("textOverlayBtn1");
-    QToolButton *textSetBtn = this->findChild<QToolButton*>("textOverlayBtn2");
+    // Set icons for control panel
+    QToolButton *swapBtn = ui->controlsBtn1;
+    QToolButton *takeBtn = ui->controlsBtn2;
+    QToolButton *recordBtn = ui->recordBtn1;
+    QToolButton *recordSetBtn = ui->recordBtn2;
+    QToolButton *stream1Btn = ui->stream1Btn1;
+    QToolButton *stream1SetBtn = ui->stream1Btn2;
+    QToolButton *stream2Btn = ui->stream2Btn1;
+    QToolButton *stream2SetBtn = ui->stream2Btn2;
+    QToolButton *textBtn = ui->textOverlayBtn1;
+    QToolButton *textSetBtn = ui->textOverlayBtn2;
 
     if (swapBtn) {
         swapBtn->setIcon(QIcon(":/icons/Swap.png"));

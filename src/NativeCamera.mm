@@ -115,8 +115,7 @@ NativeCamera::NativeCamera(QObject *parent) : QObject(parent) {
 NativeCamera::~NativeCamera() {
     stop();
     NativeCameraPrivate *p = (NativeCameraPrivate *)m_opaque;
-    [p->camDelegate release];
-    [p->playerDelegate release];
+    // Release handled by ARC
     delete p;
 }
 
@@ -229,7 +228,6 @@ void NativeCamera::stop() {
     NativeCameraPrivate *p = (NativeCameraPrivate *)m_opaque;
     if (p->session) {
         [p->session stopRunning];
-        [p->session release];
         p->session = nil;
     }
     [p->playerDelegate stop];

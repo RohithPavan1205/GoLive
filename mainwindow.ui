@@ -328,7 +328,7 @@
          <enum>QFrame::Shadow::Raised</enum>
         </property>
        </widget>
-      </item></layout></item><item><layout class="QHBoxLayout" name="horizontalLayout_bottomPanels"><property name="stretch"><string>1,1</string></property><property name="spacing"><number>9</number></property><item><widget class="QWidget" name="widget_bottomLeft_container"><property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Expanding"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property><layout class="QVBoxLayout" name="verticalLayout_bottomLeft"><property name="spacing"><number>9</number></property><item><layout class="QGridLayout" name="gridLayout">
+      </item></layout></item><item><layout class="QHBoxLayout" name="horizontalLayout_bottomPanels"><property name="spacing"><number>9</number></property><item><widget class="QWidget" name="widget_bottomLeft_container"><property name="sizePolicy"><sizepolicy hsizetype="Expanding" vsizetype="Expanding"><horstretch>1</horstretch><verstretch>0</verstretch></sizepolicy></property><layout class="QVBoxLayout" name="verticalLayout_bottomLeft"><property name="spacing"><number>9</number></property><item><layout class="QGridLayout" name="gridLayout">
         <property name="horizontalSpacing">
          <number>10</number>
         </property>
