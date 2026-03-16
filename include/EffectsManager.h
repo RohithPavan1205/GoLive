@@ -19,9 +19,13 @@ public:
     
 signals:
     void thumbnailLoaded(QPixmap pixmap);
+    void clicked(const QString &path);
+    void doubleClicked();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 private:
     QString m_filePath;
@@ -36,6 +40,10 @@ public:
     
     void setupUI(QTreeWidget *treeWidget, QStackedWidget *stackedWidget, QWidget *mainWindow);
     void handleResize(); 
+
+signals:
+    void effectApplied(const QString &pngPath, const QRectF &opening);
+    void effectCleared();
 
 private slots:
     void onCategorySelected(QTreeWidgetItem *item, int column);

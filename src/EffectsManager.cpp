@@ -66,6 +66,16 @@ void ThumbnailLabel::paintEvent(QPaintEvent *event) {
     painter.drawText(QRect(6, height() - 18, width() - 12, 18), Qt::AlignLeft | Qt::AlignVCenter | Qt::ElideRight, name);
 }
 
+void ThumbnailLabel::mousePressEvent(QMouseEvent *event) {
+    Q_UNUSED(event);
+    emit clicked(m_filePath);
+}
+
+void ThumbnailLabel::mouseDoubleClickEvent(QMouseEvent *event) {
+    Q_UNUSED(event);
+    emit doubleClicked();
+}
+
 EffectsManager::EffectsManager(const QString &effectsPath, QObject *parent)
     : QObject(parent), m_effectsPath(effectsPath), m_currentCategory("web01") 
 {
@@ -132,6 +142,52 @@ void EffectsManager::populateCategory(const QString &categoryName) {
     int col = 0;
     for (const QString &path : files) {
         ThumbnailLabel *label = new ThumbnailLabel(path, contents);
+        connect(label, &ThumbnailLabel::clicked, this, [this](const QString &p) {
+            // Load JSON or Detect Hole
+            QString jsonPath = p;
+            jsonPath.replace(".png", ".json").replace(".jpg", ".json");
+            
+            QRectF opening(0, 0, 1, 1);
+            QFile jsonFile(jsonPath);
+            if (jsonFile.open(QFile::ReadOnly)) {
+                QByteArray data = jsonFile.readAll();
+                // Simple JSON parse for "opening": [x, y, w, h]
+                QString str = QString::fromUtf8(data);
+                if (str.contains("opening")) {
+                    int start = str.indexOf("[");
+                    int end = str.indexOf("]");
+                    if (start != -1 && end != -1) {
+                        QStringList parts = str.mid(start + 1, end - start - 1).split(",");
+                        if (parts.size() >= 4) {
+                            opening = QRectF(parts[0].toDouble(), parts[1].toDouble(), parts[2].toDouble(), parts[3].toDouble());
+                        }
+                    }
+                }
+            } else {
+                // Auto detect hole: scan image for transparency
+                QImage img(p);
+                if (!img.isNull() && img.hasAlphaChannel()) {
+                    int x1 = img.width(), y1 = img.height(), x2 = 0, y2 = 0;
+                    bool found = false;
+                    for (int y = 0; y < img.height(); y += 4) {
+                        for (int x = 0; x < img.width(); x += 4) {
+                            if (qAlpha(img.pixel(x, y)) < 50) { 
+                                x1 = qMin(x1, x); y1 = qMin(y1, y);
+                                x2 = qMax(x2, x); y2 = qMax(y2, y);
+                                found = true;
+                            }
+                        }
+                    }
+                    if (found) {
+                        opening = QRectF((double)x1/img.width(), (double)y1/img.height(), (double)(x2-x1)/img.width(), (double)(y2-y1)/img.height());
+                    }
+                }
+            }
+            emit effectApplied(p, opening);
+        });
+        
+        connect(label, &ThumbnailLabel::doubleClicked, this, &EffectsManager::effectCleared);
+        
         layout->addWidget(label, row, col);
         col++;
         if (col >= cols) { col = 0; row++; }
