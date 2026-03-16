@@ -11,9 +11,13 @@
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QDateTime>
+#include <QMessageBox>
+#include <QStandardPaths>
+#include "RecordingSettingsDialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
+    , m_recordingPath(QStandardPaths::writableLocation(QStandardPaths::MoviesLocation) + "/GoLive_Recordings")
 {
     QUiLoader loader;
     QFile file(":/mainwindow.ui");
@@ -269,8 +273,39 @@ void MainWindow::setupOutputControls() {
         takeBtn->setIcon(QIcon(":/icons/Take.png"));
         connect(takeBtn, &QToolButton::clicked, m_cameraManager, &CameraManager::transition);
     }
-    if (recordBtn) recordBtn->setIcon(QIcon(":/icons/Record.png"));
-    if (recordSetBtn) recordSetBtn->setIcon(QIcon(":/icons/Settings.png"));
+    if (recordBtn) {
+        recordBtn->setIcon(QIcon(":/icons/Record.png"));
+        connect(recordBtn, &QToolButton::clicked, [this, recordBtn]() {
+            if (m_cameraManager->isRecording()) {
+                m_cameraManager->stopRecording();
+                recordBtn->setIcon(QIcon(":/icons/Record.png"));
+                recordBtn->setStyleSheet("border-radius: 6px; background-color: #404040;");
+            } else {
+                QString path = m_recordingPath;
+                if (path.isEmpty()) {
+                    QMessageBox::warning(this, "Recording Error", "Recording path not configured! Please go to settings.");
+                    return;
+                }
+                QString filename = QString("/Record_%1.mp4").arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"));
+                if (m_cameraManager->startRecording(path + filename)) {
+                    recordBtn->setIcon(QIcon(":/icons/Stop.png"));
+                    recordBtn->setStyleSheet("border-radius: 6px; background-color: #ff4444;");
+                } else {
+                    QMessageBox::critical(this, "Recording Error", "Failed to start recording!");
+                }
+            }
+        });
+    }
+    if (recordSetBtn) {
+        recordSetBtn->setIcon(QIcon(":/icons/Settings.png"));
+        connect(recordSetBtn, &QToolButton::clicked, [this]() {
+            RecordingSettingsDialog dlg(this);
+            dlg.setRecordingPath(m_recordingPath);
+            if (dlg.exec() == QDialog::Accepted) {
+                m_recordingPath = dlg.getRecordingPath();
+            }
+        });
+    }
     if (stream1Btn) stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
     if (stream1SetBtn) stream1SetBtn->setIcon(QIcon(":/icons/Settings.png"));
     if (stream2Btn) stream2Btn->setIcon(QIcon(":/icons/Stream.png"));

@@ -9,6 +9,7 @@
 #include <QVideoWidget>
 #include <QVideoSink>
 #include "NativeCamera.h"
+#include "VideoRecorder.h"
 
 class CameraManager : public QObject {
     Q_OBJECT
@@ -42,6 +43,11 @@ public:
 
     void transition();
     void swap();
+
+    // Recording
+    bool startRecording(const QString &path);
+    void stopRecording();
+    bool isRecording() const;
 
 signals:
     void mediaPositionChanged(int id, double percent);
@@ -84,6 +90,9 @@ private:
     int m_outputHeight = 1080;
     int m_outputFps = 30;
     qint64 m_lastFrameTime = 0;
+
+    VideoRecorder *m_recorder = nullptr;
+    qint64 m_recordingStartTime = 0;
 };
 
 #endif // CAMERAMANAGER_H

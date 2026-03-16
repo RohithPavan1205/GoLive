@@ -33,6 +33,7 @@ private:
     QWidget *m_uiRoot;
     CameraManager *m_cameraManager;
     EffectsManager *m_effectsManager;
+    QString m_recordingPath;
     
     void setupUi();
     void setupOutputControls();
