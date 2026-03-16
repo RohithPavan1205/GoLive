@@ -11,9 +11,6 @@
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QDateTime>
-#include <QMessageBox>
-#include "RecordingManager.h"
-#include "RecordingSettingsDialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -59,9 +56,6 @@ MainWindow::MainWindow(QWidget *parent)
     QString effectsPath = QDir(bundlePath).exists() ? bundlePath : QCoreApplication::applicationDirPath() + "/effects";
     
     m_effectsManager = new EffectsManager(effectsPath, this);
-    m_recordingManager = new RecordingManager(this);
-    
-    connect(m_cameraManager, &CameraManager::liveFrameAvailable, m_recordingManager, &RecordingManager::handleFrame);
     
     QTreeWidget *tree = this->findChild<QTreeWidget*>("treeWidget_effects_cats");
     QStackedWidget *stack = this->findChild<QStackedWidget*>("stackedWidget_effects");
@@ -277,11 +271,11 @@ void MainWindow::setupOutputControls() {
     }
     if (recordBtn) {
         recordBtn->setIcon(QIcon(":/icons/Record.png"));
-        connect(recordBtn, &QToolButton::clicked, this, &MainWindow::onRecordClicked);
+        connect(recordBtn, &QToolButton::clicked, this, &MainWindow::onStartRecordingClicked);
     }
     if (recordSetBtn) {
         recordSetBtn->setIcon(QIcon(":/icons/Settings.png"));
-        connect(recordSetBtn, &QToolButton::clicked, this, &MainWindow::onRecordSettingsClicked);
+        connect(recordSetBtn, &QToolButton::clicked, this, &MainWindow::onRecordingSettingsClicked);
     }
     if (stream1Btn) stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
     if (stream1SetBtn) stream1SetBtn->setIcon(QIcon(":/icons/Settings.png"));
@@ -297,30 +291,31 @@ void MainWindow::setupOutputControls() {
     }
 }
 
-void MainWindow::onRecordSettingsClicked() {
-    RecordingSettingsDialog dialog(m_recordingSettings, this);
+void MainWindow::onRecordingSettingsClicked() {
+    RecordingSettingsDialog dialog(this);
+    dialog.setSettings(m_recordSettings);
     if (dialog.exec() == QDialog::Accepted) {
-        m_recordingSettings = dialog.getSettings();
+        m_recordSettings = dialog.getSettings();
     }
 }
 
-void MainWindow::onRecordClicked() {
-    if (!m_recordingSettings.isConfigured) {
-        QMessageBox::warning(this, "Recording Error", "Please configure recording settings first!");
-        onRecordSettingsClicked();
+void MainWindow::onStartRecordingClicked() {
+    if (m_isRecording) {
+        // Handle stopping recording (implementation later)
+        m_isRecording = false;
+        QToolButton *recordBtn = this->findChild<QToolButton*>("recordBtn1");
+        if (recordBtn) recordBtn->setIcon(QIcon(":/icons/Record.png"));
         return;
     }
 
-    if (m_recordingManager->isRecording()) {
-        m_recordingManager->stopRecording();
-        QToolButton *recordBtn = this->findChild<QToolButton*>("recordBtn1");
-        if (recordBtn) recordBtn->setStyleSheet(""); // Reset style
-    } else {
-        if (m_recordingManager->startRecording(m_recordingSettings)) {
-            QToolButton *recordBtn = this->findChild<QToolButton*>("recordBtn1");
-            if (recordBtn) recordBtn->setStyleSheet("background-color: rgba(255, 0, 0, 0.3); border: 2px solid red;");
-        } else {
-            QMessageBox::critical(this, "Recording Error", "Failed to start recording!");
-        }
+    if (!m_recordSettings.isValid()) {
+        QMessageBox::critical(this, "Configuration Error", 
+            "Recording is not configured!\n\nPlease click the settings icon to set the recording path and format.");
+        return;
     }
+
+    // Handle starting recording (implementation later)
+    m_isRecording = true;
+    QToolButton *recordBtn = this->findChild<QToolButton*>("recordBtn1");
+    if (recordBtn) recordBtn->setIcon(QIcon(":/icons/Stop.png"));
 }

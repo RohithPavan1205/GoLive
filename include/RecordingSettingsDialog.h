@@ -4,22 +4,28 @@
 #include <QDialog>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QSpinBox>
 #include <QPushButton>
-#include <QLabel>
+#include <QString>
 
 struct RecordingSettings {
-    QString outputDir;
-    QString fileNamePrefix;
+    QString savePath;
     QString format;
-    int quality; // 0: low, 1: med, 2: high
-    bool isConfigured = false;
+    int videoBitrate; // in kbps
+    int audioBitrate; // in kbps
+    QString encoder;
+    bool isValid() const {
+        return !savePath.isEmpty() && !format.isEmpty();
+    }
 };
 
 class RecordingSettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit RecordingSettingsDialog(const RecordingSettings &currentSettings, QWidget *parent = nullptr);
+    explicit RecordingSettingsDialog(QWidget *parent = nullptr);
+    
+    void setSettings(const RecordingSettings &settings);
     RecordingSettings getSettings() const;
 
 private slots:
@@ -27,12 +33,13 @@ private slots:
     void onSaveClicked();
 
 private:
-    void setupUI();
-    
+    void setupUi();
+
     QLineEdit *m_pathEdit;
-    QLineEdit *m_nameEdit;
     QComboBox *m_formatCombo;
-    QComboBox *m_qualityCombo;
+    QSpinBox *m_vBitrateSpin;
+    QSpinBox *m_aBitrateSpin;
+    QComboBox *m_encoderCombo;
     
     RecordingSettings m_settings;
 };

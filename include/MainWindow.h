@@ -12,8 +12,8 @@
 #include <QResizeEvent>
 #include "CameraManager.h"
 #include "EffectsManager.h"
-#include "RecordingManager.h"
 #include "RecordingSettingsDialog.h"
+#include <QMessageBox>
 
 class MainWindow : public QMainWindow
 {
@@ -30,19 +30,20 @@ protected:
 private slots:
     void onSettingsClicked(int id);
     void onMediaSettingsClicked(int id);
-    void onRecordSettingsClicked();
-    void onRecordClicked();
+    void onRecordingSettingsClicked();
+    void onStartRecordingClicked();
 
 private:
     QWidget *m_uiRoot;
     CameraManager *m_cameraManager;
     EffectsManager *m_effectsManager;
-    RecordingManager *m_recordingManager;
-    RecordingSettings m_recordingSettings;
     
     void setupUi();
     void setupOutputControls();
     void fixControlsLayout();
+
+    RecordingSettings m_recordSettings;
+    bool m_isRecording = false;
 };
 
 #endif // MAINWINDOW_H
