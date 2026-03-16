@@ -18,6 +18,7 @@ public:
     ~CameraManager();
 
     QList<DeviceInfo> getAvailableCameras();
+    QList<DeviceInfo> getAvailableAudioDevices();
     
     void setupInput(int id, QFrame *container);
     
@@ -30,8 +31,14 @@ public:
     void setMuted(int id, bool muted);
     bool isMuted(int id) const;
 
+    void setOutputSettings(int width, int height, int fps);
+
     void setPreviewSlot(int id) { m_previewSlotId = id; }
     int getPreviewSlot() const { return m_previewSlotId; }
+
+    // Effect Support
+    void setEffect(const QString &pngPath, const QRectF &opening);
+    void clearEffect();
 
 signals:
     void mediaPositionChanged(int id, double percent);
@@ -57,6 +64,17 @@ private:
 
     QMap<int, InputSlot*> m_slots;
     int m_previewSlotId = -1;
+
+    // Effect State
+    QImage m_currentEffectImage;
+    QRectF m_currentEffectOpening;
+    bool m_hasEffect = false;
+
+    // Output Configuration
+    int m_outputWidth = 1920;
+    int m_outputHeight = 1080;
+    int m_outputFps = 30;
+    qint64 m_lastFrameTime = 0;
 };
 
 #endif // CAMERAMANAGER_H

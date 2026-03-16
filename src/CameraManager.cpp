@@ -2,6 +2,8 @@
 #include <QVBoxLayout>
 #include <QDebug>
 #include <QVideoFrame>
+#include <QPainter>
+#include <QDateTime>
 
 CameraManager::CameraManager(QObject *parent) : QObject(parent) {}
 
@@ -13,6 +15,10 @@ CameraManager::~CameraManager() {
 
 QList<DeviceInfo> CameraManager::getAvailableCameras() {
     return NativeCamera::enumerateDevices();
+}
+
+QList<DeviceInfo> CameraManager::getAvailableAudioDevices() {
+    return NativeCamera::enumerateAudioDevices();
 }
 
 void CameraManager::setupInput(int id, QFrame *container) {
@@ -116,12 +122,62 @@ void CameraManager::setMuted(int id, bool muted) {
     }
 }
 
+void CameraManager::setEffect(const QString &pngPath, const QRectF &opening) {
+    m_currentEffectImage.load(pngPath);
+    m_currentEffectOpening = opening;
+    m_hasEffect = !m_currentEffectImage.isNull();
+}
+
+void CameraManager::clearEffect() {
+    m_hasEffect = false;
+    m_currentEffectImage = QImage();
+}
+
+void CameraManager::setOutputSettings(int width, int height, int fps) {
+    m_outputWidth = width;
+    m_outputHeight = height;
+    m_outputFps = fps;
+}
+
 void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
     if (m_slots.contains(slotId)) {
         QVideoFrame frame(image);
         m_slots[slotId]->videoSink->setVideoFrame(frame);
+        
         if (slotId == m_previewSlotId && m_slots.contains(0)) {
-            m_slots[0]->videoSink->setVideoFrame(frame);
+            // FPS Control
+            qint64 now = QDateTime::currentMSecsSinceEpoch();
+            if (m_outputFps > 0) {
+                if (now - m_lastFrameTime < (1000 / m_outputFps)) return;
+            }
+            m_lastFrameTime = now;
+
+            // Compose output: Use configured sizes
+            QImage canvas(m_outputWidth, m_outputHeight, QImage::Format_ARGB32_Premultiplied);
+            canvas.fill(Qt::black);
+            
+            QPainter painter(&canvas);
+            painter.setRenderHint(QPainter::SmoothPixmapTransform);
+            
+            if (m_hasEffect) {
+                // 1. Draw video in hole
+                QRectF targetRect(
+                    m_currentEffectOpening.x() * m_outputWidth,
+                    m_currentEffectOpening.y() * m_outputHeight,
+                    m_currentEffectOpening.width() * m_outputWidth,
+                    m_currentEffectOpening.height() * m_outputHeight
+                );
+                painter.drawImage(targetRect, image);
+                
+                // 2. Draw Effect on top (scaled to canvas)
+                painter.drawImage(canvas.rect(), m_currentEffectImage);
+            } else {
+                // No effect: Draw full screen
+                painter.drawImage(canvas.rect(), image);
+            }
+            painter.end();
+            
+            m_slots[0]->videoSink->setVideoFrame(QVideoFrame(canvas));
         }
     }
 }
