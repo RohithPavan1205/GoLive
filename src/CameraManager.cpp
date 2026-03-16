@@ -123,24 +123,41 @@ void CameraManager::setMuted(int id, bool muted) {
 }
 
 void CameraManager::setEffect(const QString &pngPath, const QRectF &opening) {
-    m_currentEffectImage.load(pngPath);
-    m_currentEffectOpening = opening;
-    m_hasEffect = !m_currentEffectImage.isNull();
+    m_previewEffectImage.load(pngPath);
+    m_previewEffectOpening = opening;
+    m_previewHasEffect = !m_previewEffectImage.isNull();
 }
 
 void CameraManager::clearEffect() {
-    m_hasEffect = false;
-    m_currentEffectImage = QImage();
+    m_previewHasEffect = false;
+    m_previewEffectImage = QImage();
 }
 
 void CameraManager::transition() {
     m_programSlotId = m_previewSlotId;
+    m_programEffectImage = m_previewEffectImage;
+    m_programEffectOpening = m_previewEffectOpening;
+    m_programHasEffect = m_previewHasEffect;
 }
 
 void CameraManager::swap() {
-    int tmp = m_previewSlotId;
+    // Swap Slots
+    int tmpSlot = m_previewSlotId;
     m_previewSlotId = m_programSlotId;
-    m_programSlotId = tmp;
+    m_programSlotId = tmpSlot;
+
+    // Swap Effects
+    QImage tmpImg = m_previewEffectImage;
+    m_previewEffectImage = m_programEffectImage;
+    m_programEffectImage = tmpImg;
+
+    QRectF tmpRect = m_previewEffectOpening;
+    m_previewEffectOpening = m_programEffectOpening;
+    m_programEffectOpening = tmpRect;
+
+    bool tmpHas = m_previewHasEffect;
+    m_previewHasEffect = m_programHasEffect;
+    m_programHasEffect = tmpHas;
 }
 
 void CameraManager::setOutputSettings(int width, int height, int fps) {
@@ -154,46 +171,48 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
         QVideoFrame frame(image);
         m_slots[slotId]->videoSink->setVideoFrame(frame);
         
-        // Lambda for compositing with dynamic size
-        auto getCompositedFrame = [&](const QImage &source, int w, int h) -> QVideoFrame {
-            if (!m_hasEffect) return QVideoFrame(source.scaled(w, h, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-            
-            QImage canvas(w, h, QImage::Format_ARGB32_Premultiplied);
+        // 1. Send to Preview Monitor (Left - Slot -1) - Uses STAGING EFFECT and SETTINGS
+        if (slotId == m_previewSlotId && m_slots.contains(-1)) {
+            qint64 now = QDateTime::currentMSecsSinceEpoch();
+            static qint64 lastPreviewTime = 0;
+            if (m_outputFps <= 0 || (now - lastPreviewTime >= (1000 / m_outputFps))) {
+                lastPreviewTime = now;
+                
+                QImage canvas(m_outputWidth, m_outputHeight, QImage::Format_ARGB32_Premultiplied);
+                canvas.fill(Qt::black);
+                QPainter painter(&canvas);
+                painter.setRenderHint(QPainter::SmoothPixmapTransform);
+                
+                if (m_previewHasEffect) {
+                    QRectF targetRect(m_previewEffectOpening.x() * m_outputWidth, m_previewEffectOpening.y() * m_outputHeight, 
+                                     m_previewEffectOpening.width() * m_outputWidth, m_previewEffectOpening.height() * m_outputHeight);
+                    painter.drawImage(targetRect, image);
+                    painter.drawImage(canvas.rect(), m_previewEffectImage);
+                } else {
+                    painter.drawImage(canvas.rect(), image);
+                }
+                painter.end();
+                m_slots[-1]->videoSink->setVideoFrame(QVideoFrame(canvas));
+            }
+        }
+
+        // 2. Send to Program Monitor (Right - Slot 0) - Uses LIVE EFFECT and FULL QUALITY
+        if (slotId == m_programSlotId && m_slots.contains(0)) {
+            QImage canvas(1920, 1080, QImage::Format_ARGB32_Premultiplied);
             canvas.fill(Qt::black);
             QPainter painter(&canvas);
             painter.setRenderHint(QPainter::SmoothPixmapTransform);
             
-            QRectF targetRect(
-                m_currentEffectOpening.x() * w,
-                m_currentEffectOpening.y() * h,
-                m_currentEffectOpening.width() * w,
-                m_currentEffectOpening.height() * h
-            );
-            painter.drawImage(targetRect, source);
-            painter.drawImage(canvas.rect(), m_currentEffectImage);
+            if (m_programHasEffect) {
+                QRectF targetRect(m_programEffectOpening.x() * 1920, m_programEffectOpening.y() * 1080, 
+                                 m_programEffectOpening.width() * 1920, m_programEffectOpening.height() * 1080);
+                painter.drawImage(targetRect, image);
+                painter.drawImage(canvas.rect(), m_programEffectImage);
+            } else {
+                painter.drawImage(canvas.rect(), image);
+            }
             painter.end();
-            return QVideoFrame(canvas);
-        };
-
-        // 1. Send to Preview Monitor (Left - Slot -1) - USES QUALITY SETTINGS
-        if (slotId == m_previewSlotId && m_slots.contains(-1)) {
-            // FPS Throttling for Preview
-            qint64 now = QDateTime::currentMSecsSinceEpoch();
-            static qint64 lastPreviewTime = 0;
-            bool shouldRender = true;
-            if (m_outputFps > 0) {
-                if (now - lastPreviewTime < (1000 / m_outputFps)) shouldRender = false;
-            }
-            if (shouldRender) {
-                lastPreviewTime = now;
-                m_slots[-1]->videoSink->setVideoFrame(getCompositedFrame(image, m_outputWidth, m_outputHeight));
-            }
-        }
-
-        // 2. Send to Program Monitor (Right - Slot 0) - STAYS AT FULL QUALITY (1080p)
-        if (slotId == m_programSlotId && m_slots.contains(0)) {
-            // Program always runs at high quality/full speed for a smooth 'Live' view
-            m_slots[0]->videoSink->setVideoFrame(getCompositedFrame(image, 1920, 1080));
+            m_slots[0]->videoSink->setVideoFrame(QVideoFrame(canvas));
         }
     }
 }

@@ -69,10 +69,15 @@ private:
     int m_previewSlotId = -1;
     int m_programSlotId = -1;
 
-    // Effect State
-    QImage m_currentEffectImage;
-    QRectF m_currentEffectOpening;
-    bool m_hasEffect = false;
+    // Effect State (Preview/Staging)
+    QImage m_previewEffectImage;
+    QRectF m_previewEffectOpening;
+    bool m_previewHasEffect = false;
+
+    // Effect State (Program/Live)
+    QImage m_programEffectImage;
+    QRectF m_programEffectOpening;
+    bool m_programHasEffect = false;
 
     // Output Configuration
     int m_outputWidth = 1920;
