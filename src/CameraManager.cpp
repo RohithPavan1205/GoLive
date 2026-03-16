@@ -133,6 +133,16 @@ void CameraManager::clearEffect() {
     m_currentEffectImage = QImage();
 }
 
+void CameraManager::transition() {
+    m_programSlotId = m_previewSlotId;
+}
+
+void CameraManager::swap() {
+    int tmp = m_previewSlotId;
+    m_previewSlotId = m_programSlotId;
+    m_programSlotId = tmp;
+}
+
 void CameraManager::setOutputSettings(int width, int height, int fps) {
     m_outputWidth = width;
     m_outputHeight = height;
@@ -144,40 +154,40 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
         QVideoFrame frame(image);
         m_slots[slotId]->videoSink->setVideoFrame(frame);
         
-        if (slotId == m_previewSlotId && m_slots.contains(0)) {
-            // FPS Control
+        // Lambda for compositing to reuse logic for Preview and Program
+        auto getCompositedFrame = [&](const QImage &source) -> QVideoFrame {
+            if (!m_hasEffect) return QVideoFrame(source.scaled(m_outputWidth, m_outputHeight, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+            
+            QImage canvas(m_outputWidth, m_outputHeight, QImage::Format_ARGB32_Premultiplied);
+            canvas.fill(Qt::black);
+            QPainter painter(&canvas);
+            painter.setRenderHint(QPainter::SmoothPixmapTransform);
+            
+            QRectF targetRect(
+                m_currentEffectOpening.x() * m_outputWidth,
+                m_currentEffectOpening.y() * m_outputHeight,
+                m_currentEffectOpening.width() * m_outputWidth,
+                m_currentEffectOpening.height() * m_outputHeight
+            );
+            painter.drawImage(targetRect, source);
+            painter.drawImage(canvas.rect(), m_currentEffectImage);
+            painter.end();
+            return QVideoFrame(canvas);
+        };
+
+        // 1. Send to Preview Monitor (Left - Slot -1)
+        if (slotId == m_previewSlotId && m_slots.contains(-1)) {
+            m_slots[-1]->videoSink->setVideoFrame(getCompositedFrame(image));
+        }
+
+        // 2. Send to Program Monitor (Right - Slot 0) with FPS Control
+        if (slotId == m_programSlotId && m_slots.contains(0)) {
             qint64 now = QDateTime::currentMSecsSinceEpoch();
             if (m_outputFps > 0) {
                 if (now - m_lastFrameTime < (1000 / m_outputFps)) return;
             }
             m_lastFrameTime = now;
-
-            // Compose output: Use configured sizes
-            QImage canvas(m_outputWidth, m_outputHeight, QImage::Format_ARGB32_Premultiplied);
-            canvas.fill(Qt::black);
-            
-            QPainter painter(&canvas);
-            painter.setRenderHint(QPainter::SmoothPixmapTransform);
-            
-            if (m_hasEffect) {
-                // 1. Draw video in hole
-                QRectF targetRect(
-                    m_currentEffectOpening.x() * m_outputWidth,
-                    m_currentEffectOpening.y() * m_outputHeight,
-                    m_currentEffectOpening.width() * m_outputWidth,
-                    m_currentEffectOpening.height() * m_outputHeight
-                );
-                painter.drawImage(targetRect, image);
-                
-                // 2. Draw Effect on top (scaled to canvas)
-                painter.drawImage(canvas.rect(), m_currentEffectImage);
-            } else {
-                // No effect: Draw full screen
-                painter.drawImage(canvas.rect(), image);
-            }
-            painter.end();
-            
-            m_slots[0]->videoSink->setVideoFrame(QVideoFrame(canvas));
+            m_slots[0]->videoSink->setVideoFrame(getCompositedFrame(image));
         }
     }
 }

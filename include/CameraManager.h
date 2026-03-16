@@ -40,6 +40,9 @@ public:
     void setEffect(const QString &pngPath, const QRectF &opening);
     void clearEffect();
 
+    void transition();
+    void swap();
+
 signals:
     void mediaPositionChanged(int id, double percent);
     void mediaFinished(int id);
@@ -64,6 +67,7 @@ private:
 
     QMap<int, InputSlot*> m_slots;
     int m_previewSlotId = -1;
+    int m_programSlotId = -1;
 
     // Effect State
     QImage m_currentEffectImage;
