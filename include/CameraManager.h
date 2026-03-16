@@ -8,7 +8,10 @@
 #include <memory>
 #include <QVideoWidget>
 #include <QVideoSink>
+#include <QColor>
+#include <QFont>
 #include "NativeCamera.h"
+#include "TextOverlaySettingsDialog.h"
 
 class CameraManager : public QObject {
     Q_OBJECT
@@ -39,6 +42,9 @@ public:
     // Effect Support
     void setEffect(const QString &pngPath, const QRectF &opening);
     void clearEffect();
+    
+    // Text Overlay Support
+    void setTextOverlay(const TextOverlaySettingsDialog::Settings &settings);
 
     void transition();
     void swap();
@@ -78,6 +84,10 @@ private:
     QImage m_programEffectImage;
     QRectF m_programEffectOpening;
     bool m_programHasEffect = false;
+
+    // Text Overlay State
+    TextOverlaySettingsDialog::Settings m_previewText;
+    TextOverlaySettingsDialog::Settings m_programText;
 
     // Output Configuration
     int m_outputWidth = 1920;

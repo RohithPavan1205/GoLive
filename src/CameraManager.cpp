@@ -133,11 +133,17 @@ void CameraManager::clearEffect() {
     m_previewEffectImage = QImage();
 }
 
+void CameraManager::setTextOverlay(const TextOverlaySettingsDialog::Settings &settings) {
+    m_previewText = settings;
+}
+
 void CameraManager::transition() {
     m_programSlotId = m_previewSlotId;
     m_programEffectImage = m_previewEffectImage;
     m_programEffectOpening = m_previewEffectOpening;
     m_programHasEffect = m_previewHasEffect;
+    
+    m_programText = m_previewText;
 }
 
 void CameraManager::swap() {
@@ -158,6 +164,11 @@ void CameraManager::swap() {
     bool tmpHas = m_previewHasEffect;
     m_previewHasEffect = m_programHasEffect;
     m_programHasEffect = tmpHas;
+
+    // Swap Text
+    TextOverlaySettingsDialog::Settings tmpText = m_previewText;
+    m_previewText = m_programText;
+    m_programText = tmpText;
 }
 
 void CameraManager::setOutputSettings(int width, int height, int fps) {
@@ -171,7 +182,7 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
         QVideoFrame frame(image);
         m_slots[slotId]->videoSink->setVideoFrame(frame);
         
-        // 1. Send to Preview Monitor (Left - Slot -1) - Uses STAGING EFFECT and SETTINGS
+        // 1. Send to Preview Monitor (Left - Slot -1)
         if (slotId == m_previewSlotId && m_slots.contains(-1)) {
             qint64 now = QDateTime::currentMSecsSinceEpoch();
             static qint64 lastPreviewTime = 0;
@@ -182,6 +193,8 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
                 canvas.fill(Qt::black);
                 QPainter painter(&canvas);
                 painter.setRenderHint(QPainter::SmoothPixmapTransform);
+                painter.setRenderHint(QPainter::Antialiasing);
+                painter.setRenderHint(QPainter::TextAntialiasing);
                 
                 if (m_previewHasEffect) {
                     QRectF targetRect(m_previewEffectOpening.x() * m_outputWidth, m_previewEffectOpening.y() * m_outputHeight, 
@@ -191,17 +204,32 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
                 } else {
                     painter.drawImage(canvas.rect(), image);
                 }
+
+                // Render Staged Text Overlay
+                if (m_previewText.isConfigured && m_previewText.isVisible) {
+                    painter.setPen(m_previewText.color);
+                    QFont font(m_previewText.font, m_previewText.size);
+                    painter.setFont(font);
+                    // Center bottom position logic
+                    QRect textRect = painter.fontMetrics().boundingRect(m_previewText.text);
+                    int x = (m_outputWidth - textRect.width()) / 2;
+                    int y = m_outputHeight - 50; 
+                    painter.drawText(x, y, m_previewText.text);
+                }
+
                 painter.end();
                 m_slots[-1]->videoSink->setVideoFrame(QVideoFrame(canvas));
             }
         }
 
-        // 2. Send to Program Monitor (Right - Slot 0) - Uses LIVE EFFECT and FULL QUALITY
+        // 2. Send to Program Monitor (Right - Slot 0)
         if (slotId == m_programSlotId && m_slots.contains(0)) {
             QImage canvas(1920, 1080, QImage::Format_ARGB32_Premultiplied);
             canvas.fill(Qt::black);
             QPainter painter(&canvas);
             painter.setRenderHint(QPainter::SmoothPixmapTransform);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setRenderHint(QPainter::TextAntialiasing);
             
             if (m_programHasEffect) {
                 QRectF targetRect(m_programEffectOpening.x() * 1920, m_programEffectOpening.y() * 1080, 
@@ -211,6 +239,18 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
             } else {
                 painter.drawImage(canvas.rect(), image);
             }
+
+            // Render Live Text Overlay
+            if (m_programText.isConfigured && m_programText.isVisible) {
+                painter.setPen(m_programText.color);
+                QFont font(m_programText.font, m_programText.size);
+                painter.setFont(font);
+                QRect textRect = painter.fontMetrics().boundingRect(m_programText.text);
+                int x = (1920 - textRect.width()) / 2;
+                int y = 1080 - 50; 
+                painter.drawText(x, y, m_programText.text);
+            }
+
             painter.end();
             m_slots[0]->videoSink->setVideoFrame(QVideoFrame(canvas));
         }

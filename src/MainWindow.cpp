@@ -325,13 +325,16 @@ void MainWindow::setupOutputControls() {
         textBtn->setIcon(QIcon(":/icons/Text.png"));
         connect(textBtn, &QToolButton::clicked, this, [this]() {
             m_textSettings.isVisible = !m_textSettings.isVisible;
+            m_cameraManager->setTextOverlay(m_textSettings);
         });
     }
     if (textSetBtn) {
         textSetBtn->setIcon(QIcon(":/icons/Settings.png"));
         connect(textSetBtn, &QToolButton::clicked, this, [this]() {
             TextOverlaySettingsDialog dialog(&m_textSettings, this);
-            dialog.exec();
+            if (dialog.exec() == QDialog::Accepted) {
+                m_cameraManager->setTextOverlay(m_textSettings);
+            }
         });
     }
 
