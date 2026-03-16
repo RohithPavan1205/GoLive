@@ -13,45 +13,7 @@
 #include <QDateTime>
 #include <QDialog>
 #include <QLabel>
-
-class RecordingSettingsDialog : public QDialog {
-public:
-    explicit RecordingSettingsDialog(QWidget *parent = nullptr) : QDialog(parent) {
-        setWindowTitle("Recording Settings");
-        resize(300, 200);
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->addWidget(new QLabel("Recording Configuration (Placeholder)", this));
-        QPushButton *okBtn = new QPushButton("OK", this);
-        connect(okBtn, &QPushButton::clicked, this, &QDialog::accept);
-        layout->addWidget(okBtn);
-    }
-};
-
-class StreamingSettingsDialog : public QDialog {
-public:
-    explicit StreamingSettingsDialog(QWidget *parent = nullptr) : QDialog(parent) {
-        setWindowTitle("Streaming Settings");
-        resize(300, 200);
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->addWidget(new QLabel("Streaming Configuration (Placeholder)", this));
-        QPushButton *okBtn = new QPushButton("OK", this);
-        connect(okBtn, &QPushButton::clicked, this, &QDialog::accept);
-        layout->addWidget(okBtn);
-    }
-};
-
-class TextOverlaySettingsDialog : public QDialog {
-public:
-    explicit TextOverlaySettingsDialog(QWidget *parent = nullptr) : QDialog(parent) {
-        setWindowTitle("Text Overlay Settings");
-        resize(300, 200);
-        QVBoxLayout *layout = new QVBoxLayout(this);
-        layout->addWidget(new QLabel("Text Overlay Configuration (Placeholder)", this));
-        QPushButton *okBtn = new QPushButton("OK", this);
-        connect(okBtn, &QPushButton::clicked, this, &QDialog::accept);
-        layout->addWidget(okBtn);
-    }
-};
+#include <QHBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -310,35 +272,65 @@ void MainWindow::setupOutputControls() {
         takeBtn->setIcon(QIcon(":/icons/Take.png"));
         connect(takeBtn, &QToolButton::clicked, m_cameraManager, &CameraManager::transition);
     }
-    if (recordBtn) recordBtn->setIcon(QIcon(":/icons/Record.png"));
+    if (recordBtn) {
+        recordBtn->setIcon(QIcon(":/icons/Record.png"));
+        connect(recordBtn, &QToolButton::clicked, this, [this]() {
+            if (!m_recordingSettings.isConfigured) {
+                QMessageBox::warning(this, "Not Configured", "Please configure recording settings first!");
+                return;
+            }
+            // Implementation later
+        });
+    }
     if (recordSetBtn) {
         recordSetBtn->setIcon(QIcon(":/icons/Settings.png"));
         connect(recordSetBtn, &QToolButton::clicked, this, [this]() {
-            RecordingSettingsDialog dialog(this);
+            RecordingSettingsDialog dialog(&m_recordingSettings, this);
             dialog.exec();
         });
     }
-    if (stream1Btn) stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
+    if (stream1Btn) {
+        stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
+        connect(stream1Btn, &QToolButton::clicked, this, [this]() {
+            if (!m_stream1Settings.isConfigured) {
+                QMessageBox::warning(this, "Not Configured", "Please configure Stream 1 settings first!");
+                return;
+            }
+        });
+    }
     if (stream1SetBtn) {
         stream1SetBtn->setIcon(QIcon(":/icons/Settings.png"));
         connect(stream1SetBtn, &QToolButton::clicked, this, [this]() {
-            StreamingSettingsDialog dialog(this);
+            StreamingSettingsDialog dialog("Stream 1 Settings", &m_stream1Settings, this);
             dialog.exec();
         });
     }
-    if (stream2Btn) stream2Btn->setIcon(QIcon(":/icons/Stream.png"));
+    if (stream2Btn) {
+        stream2Btn->setIcon(QIcon(":/icons/Stream.png"));
+        connect(stream2Btn, &QToolButton::clicked, this, [this]() {
+            if (!m_stream2Settings.isConfigured) {
+                QMessageBox::warning(this, "Not Configured", "Please configure Stream 2 settings first!");
+                return;
+            }
+        });
+    }
     if (stream2SetBtn) {
         stream2SetBtn->setIcon(QIcon(":/icons/Settings.png"));
         connect(stream2SetBtn, &QToolButton::clicked, this, [this]() {
-            StreamingSettingsDialog dialog(this);
+            StreamingSettingsDialog dialog("Stream 2 Settings", &m_stream2Settings, this);
             dialog.exec();
         });
     }
-    if (textBtn) stream1Btn->setIcon(QIcon(":/icons/Text.png"));
+    if (textBtn) {
+        textBtn->setIcon(QIcon(":/icons/Text.png"));
+        connect(textBtn, &QToolButton::clicked, this, [this]() {
+            m_textSettings.isVisible = !m_textSettings.isVisible;
+        });
+    }
     if (textSetBtn) {
         textSetBtn->setIcon(QIcon(":/icons/Settings.png"));
         connect(textSetBtn, &QToolButton::clicked, this, [this]() {
-            TextOverlaySettingsDialog dialog(this);
+            TextOverlaySettingsDialog dialog(&m_textSettings, this);
             dialog.exec();
         });
     }

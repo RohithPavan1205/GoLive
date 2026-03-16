@@ -13,7 +13,8 @@
 #include "CameraManager.h"
 #include "EffectsManager.h"
 #include "RecordingSettingsDialog.h"
-#include <QMessageBox>
+#include "StreamingSettingsDialog.h"
+#include "TextOverlaySettingsDialog.h"
 
 class MainWindow : public QMainWindow
 {
@@ -30,20 +31,21 @@ protected:
 private slots:
     void onSettingsClicked(int id);
     void onMediaSettingsClicked(int id);
-    void onRecordingSettingsClicked();
-    void onStartRecordingClicked();
 
 private:
     QWidget *m_uiRoot;
     CameraManager *m_cameraManager;
     EffectsManager *m_effectsManager;
     
+    // Config State
+    RecordingSettingsDialog::Settings m_recordingSettings;
+    StreamingSettingsDialog::Settings m_stream1Settings;
+    StreamingSettingsDialog::Settings m_stream2Settings;
+    TextOverlaySettingsDialog::Settings m_textSettings;
+
     void setupUi();
     void setupOutputControls();
     void fixControlsLayout();
-
-    RecordingSettings m_recordSettings;
-    bool m_isRecording = false;
 };
 
 #endif // MAINWINDOW_H

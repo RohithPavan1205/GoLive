@@ -21,6 +21,8 @@ set(HEADERS
     include/EffectsManager.h
     include/NativeCamera.h
     include/RecordingSettingsDialog.h
+    include/StreamingSettingsDialog.h
+    include/TextOverlaySettingsDialog.h
 )
 
 set(SOURCES
@@ -30,7 +32,6 @@ set(SOURCES
     src/CameraSelectionDialog.cpp
     src/MediaSelectionDialog.cpp
     src/EffectsManager.cpp
-    src/RecordingSettingsDialog.cpp
     src/NativeCamera.mm
     resources.qrc
 )

@@ -2,10 +2,7 @@
 #define CAMERAMANAGER_H
 
 #include <QObject>
-#include <QString>
-#include <QRectF>
-#include <QFrame> // Keep QFrame as it's used for container
-#include <QLabel> // Add QLabel as per instruction
+#include <QFrame>
 #include <QMap>
 #include <vector>
 #include <memory>
@@ -49,7 +46,6 @@ public:
 signals:
     void mediaPositionChanged(int id, double percent);
     void mediaFinished(int id);
-    void liveFrameAvailable(const QImage &frame);
 
 private slots:
     void onFrameAvailable(const QImage &image, int slotId);
