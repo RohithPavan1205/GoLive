@@ -19,6 +19,7 @@ public:
     ~NativeCamera();
 
     static QList<DeviceInfo> enumerateDevices();
+    static QList<DeviceInfo> enumerateAudioDevices();
     
     // Camera Control
     bool start(const QString &deviceId, int width = 1280, int height = 720, int fps = 30);

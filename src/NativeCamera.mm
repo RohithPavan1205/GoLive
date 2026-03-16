@@ -135,6 +135,21 @@ QList<DeviceInfo> NativeCamera::enumerateDevices() {
     return list;
 }
 
+QList<DeviceInfo> NativeCamera::enumerateAudioDevices() {
+    QList<DeviceInfo> list;
+    AVCaptureDeviceDiscoverySession *discoverySession = [AVCaptureDeviceDiscoverySession 
+        discoverySessionWithDeviceTypes:@[AVCaptureDeviceTypeBuiltInMicrophone, AVCaptureDeviceTypeExternal]
+        mediaType:AVMediaTypeAudio 
+        position:AVCaptureDevicePositionUnspecified];
+    for (AVCaptureDevice *device in discoverySession.devices) {
+        DeviceInfo info;
+        info.id = QString::fromNSString(device.uniqueID);
+        info.name = QString::fromNSString(device.localizedName);
+        list.append(info);
+    }
+    return list;
+}
+
 bool NativeCamera::start(const QString &deviceId, int width, int height, int fps) {
     stop();
     NativeCameraPrivate *p = (NativeCameraPrivate *)m_opaque;
