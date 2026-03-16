@@ -20,7 +20,7 @@ set(HEADERS
     include/MediaSelectionDialog.h
     include/EffectsManager.h
     include/NativeCamera.h
-    include/VideoRecorder.h
+    include/RecordingManager.h
     include/RecordingSettingsDialog.h
 )
 
@@ -31,16 +31,11 @@ set(SOURCES
     src/CameraSelectionDialog.cpp
     src/MediaSelectionDialog.cpp
     src/EffectsManager.cpp
-    src/VideoRecorder.cpp
+    src/NativeCamera.mm
+    src/RecordingManager.cpp
     src/RecordingSettingsDialog.cpp
     resources.qrc
 )
-
-if(APPLE)
-    list(APPEND SOURCES src/NativeCamera.mm)
-else()
-    list(APPEND SOURCES src/NativeCamera.cpp)
-endif()
 
 add_executable(JaiHanuman MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 

@@ -5,9 +5,7 @@
 #include <QPainter>
 #include <QDateTime>
 
-CameraManager::CameraManager(QObject *parent) : QObject(parent) {
-    m_recorder = new VideoRecorder(this);
-}
+CameraManager::CameraManager(QObject *parent) : QObject(parent) {}
 
 CameraManager::~CameraManager() {
     for (auto slot : m_slots.values()) {
@@ -168,20 +166,6 @@ void CameraManager::setOutputSettings(int width, int height, int fps) {
     m_outputFps = fps;
 }
 
-bool CameraManager::startRecording(const QString &path) {
-    if (!m_recorder) return false;
-    m_recordingStartTime = QDateTime::currentMSecsSinceEpoch();
-    return m_recorder->startRecording(path, 1920, 1080, 30);
-}
-
-void CameraManager::stopRecording() {
-    if (m_recorder) m_recorder->stopRecording();
-}
-
-bool CameraManager::isRecording() const {
-    return m_recorder && m_recorder->isRecording();
-}
-
 void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
     if (m_slots.contains(slotId)) {
         QVideoFrame frame(image);
@@ -228,13 +212,7 @@ void CameraManager::onFrameAvailable(const QImage &image, int slotId) {
                 painter.drawImage(canvas.rect(), image);
             }
             painter.end();
-            QVideoFrame compositedFrame(canvas);
-            m_slots[0]->videoSink->setVideoFrame(compositedFrame);
-
-            // 3. Record if active
-            if (m_recorder && m_recorder->isRecording()) {
-                m_recorder->writeFrame(canvas);
-            }
+            m_slots[0]->videoSink->setVideoFrame(QVideoFrame(canvas));
         }
     }
 }

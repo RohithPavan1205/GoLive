@@ -3,25 +3,38 @@
 
 #include <QDialog>
 #include <QLineEdit>
+#include <QComboBox>
 #include <QPushButton>
-#include <QString>
+#include <QLabel>
+
+struct RecordingSettings {
+    QString outputDir;
+    QString fileNamePrefix;
+    QString format;
+    int quality; // 0: low, 1: med, 2: high
+    bool isConfigured = false;
+};
 
 class RecordingSettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit RecordingSettingsDialog(QWidget *parent = nullptr);
-    
-    QString getRecordingPath() const { return m_path; }
-    void setRecordingPath(const QString &path);
+    explicit RecordingSettingsDialog(const RecordingSettings &currentSettings, QWidget *parent = nullptr);
+    RecordingSettings getSettings() const;
 
 private slots:
-    void onBrowse();
-    void onSave();
+    void onBrowseClicked();
+    void onSaveClicked();
 
 private:
+    void setupUI();
+    
     QLineEdit *m_pathEdit;
-    QString m_path;
+    QLineEdit *m_nameEdit;
+    QComboBox *m_formatCombo;
+    QComboBox *m_qualityCombo;
+    
+    RecordingSettings m_settings;
 };
 
 #endif // RECORDINGSETTINGSDIALOG_H
