@@ -99,23 +99,26 @@ bool RecordingManager::initFFmpeg(const QString &filePath, int width, int height
 
     if (avcodec_open2(m_videoCodecCtx, videoCodec, nullptr) < 0) return false;
 
-    if (avcodec_open2(m_videoCodecCtx, videoCodec, nullptr) < 0) return false;
-
-    // 2b. Audio Encoder (Temporarily disabled)
-    /*
+    // 2b. Audio Encoder (AAC)
     const AVCodec *audioCodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
-    ...
-    */
+    m_audioCodecCtx = avcodec_alloc_context3(audioCodec);
+    m_audioCodecCtx->sample_fmt = AV_SAMPLE_FMT_FLTP;
+    m_audioCodecCtx->bit_rate = 128000;
+    m_audioCodecCtx->sample_rate = 48000;
+    av_channel_layout_default(&m_audioCodecCtx->ch_layout, 2);
+    m_audioCodecCtx->time_base = {1, 48000};
+    m_audioCodecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
+    if (avcodec_open2(m_audioCodecCtx, audioCodec, nullptr) < 0) return false;
 
     // 3. Create Streams
     m_videoStream = avformat_new_stream(m_formatCtx, videoCodec);
     avcodec_parameters_from_context(m_videoStream->codecpar, m_videoCodecCtx);
-    // m_videoStream->time_base will be set by avformat_write_header
+    m_videoStream->time_base = m_videoCodecCtx->time_base;
 
-    /*
     m_audioStream = avformat_new_stream(m_formatCtx, audioCodec);
-    ...
-    */
+    avcodec_parameters_from_context(m_audioStream->codecpar, m_audioCodecCtx);
+    // Don't manually set stream timebase, let the muxer decide in write_header
 
     // 4. Open File
     if (!(m_formatCtx->oformat->flags & AVFMT_NOFILE)) {
@@ -173,18 +176,30 @@ void RecordingManager::recordLoop() {
                 while (avcodec_receive_packet(m_videoCodecCtx, pkt) >= 0) {
                     av_packet_rescale_ts(pkt, m_videoCodecCtx->time_base, m_videoStream->time_base);
                     pkt->stream_index = m_videoStream->index;
-                    av_write_frame(m_formatCtx, pkt); // Use av_write_frame for video-only
+                    av_interleaved_write_frame(m_formatCtx, pkt);
                     av_packet_unref(pkt);
                 }
             }
         }
 
-        // --- Audio Processing (Temporarily disabled) ---
-        /*
         if (!audioData.isEmpty()) {
-            ...
+            const uint8_t *in_data[1] = { (const uint8_t*)audioData.constData() };
+            int in_samples = audioData.size() / 4; // S16 Stereo
+            int out_samples = swr_convert(m_swrCtx, audioFrame->data, audioFrame->nb_samples, in_data, in_samples);
+            
+            if (out_samples > 0) {
+                audioFrame->pts = m_audioFrameCount;
+                m_audioFrameCount += out_samples;
+                if (avcodec_send_frame(m_audioCodecCtx, audioFrame) >= 0) {
+                    while (avcodec_receive_packet(m_audioCodecCtx, pkt) >= 0) {
+                        av_packet_rescale_ts(pkt, m_audioCodecCtx->time_base, m_audioStream->time_base);
+                        pkt->stream_index = m_audioStream->index;
+                        av_interleaved_write_frame(m_formatCtx, pkt);
+                        av_packet_unref(pkt);
+                    }
+                }
+            }
         }
-        */
 
         if (img.isNull() && audioData.isEmpty()) {
             QThread::msleep(5);

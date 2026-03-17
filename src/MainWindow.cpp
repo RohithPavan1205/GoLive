@@ -74,8 +74,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_streamingManager = new StreamingManager(this);
     connect(m_streamingManager, &StreamingManager::errorOccurred, this, &MainWindow::onStreamingError);
-    connect(m_streamingManager, &StreamingManager::stateChanged, this, &MainWindow::onStreamingStateChanged);
-    connect(m_streamingManager, &StreamingManager::metricsUpdated, this, &MainWindow::onStreamingMetricsUpdated);
     connect(m_cameraManager, &CameraManager::programFrameAvailable, m_streamingManager, &StreamingManager::pushFrame);
 
     m_recordingManager = new RecordingManager(this);
@@ -284,33 +282,8 @@ void MainWindow::updateStreamingState() {
 
     m_streamingManager->stopStreaming();
     if (!urls.isEmpty()) {
-        m_streamingManager->startStreaming(urls, 1920, 1080, 30, 4000000); // 4Mbps is safer for YouTube
+        m_streamingManager->startStreaming(urls, 1920, 1080, 30, 6000000);
     }
-}
-
-void MainWindow::onStreamingStateChanged(StreamingManager::State state) {
-    QToolButton *stream1Btn = this->findChild<QToolButton*>("stream1Btn1");
-    QToolButton *stream2Btn = this->findChild<QToolButton*>("stream2Btn1");
-    
-    QString activeStyle = "background-color: #ff3b30; color: white; border-radius: 4px; padding: 5px;";
-    QString connectingStyle = "background-color: #ff9500; color: white; border-radius: 4px; padding: 5px;";
-    QString idleStyle = "background-color: #3a3a3c; color: #ebebf5; border-radius: 4px; padding: 5px;";
-
-    if (state == StreamingManager::State::Streaming) {
-        if (stream1Btn && stream1Btn->isChecked()) stream1Btn->setStyleSheet(activeStyle);
-        if (stream2Btn && stream2Btn->isChecked()) stream2Btn->setStyleSheet(activeStyle);
-    } else if (state == StreamingManager::State::Connecting || state == StreamingManager::State::Reconnecting) {
-        if (stream1Btn && stream1Btn->isChecked()) stream1Btn->setStyleSheet(connectingStyle);
-        if (stream2Btn && stream2Btn->isChecked()) stream2Btn->setStyleSheet(connectingStyle);
-    } else {
-        if (stream1Btn) stream1Btn->setStyleSheet(idleStyle);
-        if (stream2Btn) stream2Btn->setStyleSheet(idleStyle);
-    }
-}
-
-void MainWindow::onStreamingMetricsUpdated(const StreamingManager::Metrics &metrics) {
-    // Optional: Update status bar or specialized label
-    // statusBar()->showMessage(QString("Streaming: %1 kbps | Dropped: %2").arg(metrics.currentBitrate).arg(metrics.droppedFrames));
 }
 
 void MainWindow::setupOutputControls() {

@@ -17,11 +17,6 @@ void StreamingManager::updateState(State newState) {
     emit stateChanged(newState);
 }
 
-static int interrupt_cb(void *ctx) {
-    std::atomic<bool> *should_stop = static_cast<std::atomic<bool>*>(ctx);
-    return (should_stop && should_stop->load()) ? 1 : 0;
-}
-
 void StreamingManager::logFFmpegError(int err, const QString &context) {
     char errbuf[AV_ERROR_MAX_STRING_SIZE];
     av_strerror(err, errbuf, AV_ERROR_MAX_STRING_SIZE);
@@ -53,21 +48,27 @@ bool StreamingManager::startStreaming(const QList<QString> &urls, int width, int
     m_fps = fps;
     m_bitrate = bitrate;
     m_initialUrls = urls;
-    m_shouldStop = false;
 
+    if (!initFFmpeg(urls, width, height, fps, bitrate)) {
+        cleanupFFmpeg();
+        updateState(State::Failed);
+        return false;
+    }
+
+    m_shouldStop = false;
+    m_frameCount = 0;
+    m_audioFrameCount = 0;
+    m_totalFrames = 0;
+    m_droppedFrames = 0;
+    m_totalBytesSent = 0;
+    
     m_workerThread = QThread::create([this]() {
-        if (initFFmpeg(m_initialUrls, m_width, m_height, m_fps, m_bitrate)) {
-            updateState(State::Streaming);
-            streamLoop();
-        } else {
-            cleanupFFmpeg();
-            if (!m_shouldStop) updateState(State::Failed);
-            else updateState(State::Idle);
-        }
+        streamLoop();
     });
     m_workerThread->setObjectName("StreamingWorker");
     m_workerThread->start();
     
+    updateState(State::Streaming);
     return true;
 }
 
@@ -144,15 +145,27 @@ bool StreamingManager::initFFmpeg(const QList<QString> &urls, int width, int hei
         return false;
     }
 
-    // 2. Audio Encoder (Temporarily disabled to fix video-only stall)
-    /*
+    // 2. Audio Encoder (AAC)
     const AVCodec *audioCodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
-    ...
-    */
+    if (!audioCodec) {
+        emit errorOccurred("Could not find AAC encoder.");
+        return false;
+    }
+    m_audioCodecCtx = avcodec_alloc_context3(audioCodec);
+    m_audioCodecCtx->sample_fmt = AV_SAMPLE_FMT_FLTP;
+    m_audioCodecCtx->bit_rate = 128000;
+    m_audioCodecCtx->sample_rate = 48000;
+    av_channel_layout_default(&m_audioCodecCtx->ch_layout, 2);
+    m_audioCodecCtx->time_base = {1, 48000};
+    m_audioCodecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
+    if ((ret = avcodec_open2(m_audioCodecCtx, audioCodec, nullptr)) < 0) {
+        logFFmpegError(ret, "Failed to open audio codec");
+        return false;
+    }
 
     // 3. Create Outputs
     for (const QString &url : urls) {
-        if (m_shouldStop) break;
         OutputTarget target;
         target.url = url;
         if ((ret = avformat_alloc_output_context2(&target.formatCtx, nullptr, "flv", url.toUtf8().constData())) < 0) {
@@ -160,16 +173,17 @@ bool StreamingManager::initFFmpeg(const QList<QString> &urls, int width, int hei
             continue;
         }
 
-        // Add interrupt callback
-        target.formatCtx->interrupt_callback.callback = interrupt_cb;
-        target.formatCtx->interrupt_callback.opaque = &m_shouldStop;
-
         target.videoStream = avformat_new_stream(target.formatCtx, videoCodec);
         avcodec_parameters_from_context(target.videoStream->codecpar, m_videoCodecCtx);
-        
+        target.videoStream->time_base = m_videoCodecCtx->time_base;
+
+        target.audioStream = avformat_new_stream(target.formatCtx, audioCodec);
+        avcodec_parameters_from_context(target.audioStream->codecpar, m_audioCodecCtx);
+        target.audioStream->time_base = m_audioCodecCtx->time_base;
+
         if (!(target.formatCtx->oformat->flags & AVFMT_NOFILE)) {
             AVDictionary *opts = nullptr;
-            av_dict_set(&opts, "connect_timeout", "5000000", 0); 
+            av_dict_set(&opts, "connect_timeout", "5000000", 0); // 5 sec
             if ((ret = avio_open2(&target.formatCtx->pb, url.toUtf8().constData(), AVIO_FLAG_WRITE, nullptr, &opts)) < 0) {
                 logFFmpegError(ret, QString("Connection failed for %1").arg(url));
                 av_dict_free(&opts);
@@ -249,9 +263,7 @@ void StreamingManager::streamLoop() {
                         AVPacket *outPkt = av_packet_clone(pkt);
                         av_packet_rescale_ts(outPkt, m_videoCodecCtx->time_base, target.videoStream->time_base);
                         outPkt->stream_index = target.videoStream->index;
-                        
-                        // Use av_write_frame (non-interleaved) for video-only to avoid stall
-                        if (av_write_frame(target.formatCtx, outPkt) < 0) {
+                        if (av_interleaved_write_frame(target.formatCtx, outPkt) < 0) {
                             qWarning() << "[StreamingManager] Write failed for" << target.url;
                             target.connected = false;
                         }
@@ -262,12 +274,34 @@ void StreamingManager::streamLoop() {
             }
         }
 
-        // --- Audio Processing (Disabled) ---
-        /*
+        // --- Audio Processing ---
         if (!audioData.isEmpty()) {
-            ...
+            handledSomething = true;
+            const uint8_t *in_data[1] = { (const uint8_t*)audioData.constData() };
+            int in_samples = audioData.size() / 4; // Assuming S16 Stereo
+            int out_samples = swr_convert(m_swrCtx, audioFrame->data, audioFrame->nb_samples, in_data, in_samples);
+            
+            if (out_samples > 0) {
+                audioFrame->pts = m_audioFrameCount;
+                m_audioFrameCount += out_samples;
+                if (avcodec_send_frame(m_audioCodecCtx, audioFrame) >= 0) {
+                    while (avcodec_receive_packet(m_audioCodecCtx, pkt) >= 0) {
+                        m_totalBytesSent += pkt->size;
+                        for (auto &target : m_targets) {
+                            if (!target.connected) continue;
+                            AVPacket *outPkt = av_packet_clone(pkt);
+                            av_packet_rescale_ts(outPkt, m_audioCodecCtx->time_base, target.audioStream->time_base);
+                            outPkt->stream_index = target.audioStream->index;
+                            if (av_interleaved_write_frame(target.formatCtx, outPkt) < 0) {
+                                target.connected = false;
+                            }
+                            av_packet_free(&outPkt);
+                        }
+                        av_packet_unref(pkt);
+                    }
+                }
+            }
         }
-        */
 
         // --- Reconnection & Health Check ---
         static qint64 lastHealthCheck = 0;
