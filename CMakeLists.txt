@@ -70,6 +70,7 @@ if(APPLE)
         "-framework QuartzCore"
         "-framework Foundation"
         "-framework AppKit"
+        "-framework MediaToolbox"
     )
     
     add_custom_command(TARGET JaiHanuman POST_BUILD
