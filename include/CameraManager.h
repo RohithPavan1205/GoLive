@@ -56,6 +56,7 @@ signals:
     void mediaPositionChanged(int id, double percent);
     void mediaFinished(int id);
     void programFrameAvailable(const QImage &image);
+    void programAudioAvailable(const QByteArray &data);
 
 private slots:
     void onFrameAvailable(const QImage &image, int slotId);

@@ -112,6 +112,11 @@ bool CameraManager::openCameraForInput(int id, const QString &deviceId, int widt
     connect(slot->nativeCamera, &NativeCamera::frameAvailable, this, [this, id](const QImage &image) {
         this->onFrameAvailable(image, id);
     });
+    connect(slot->nativeCamera, &NativeCamera::audioAvailable, this, [this, id](const QByteArray &data) {
+        if (id == this->m_programSlotId && !this->m_slots[id]->muted) {
+            emit programAudioAvailable(data);
+        }
+    });
 
     bool success = slot->nativeCamera->start(deviceId, width, height, fps);
     if (success) {
@@ -141,6 +146,11 @@ bool CameraManager::openFileForInput(int id, const QString &filePath, bool loop)
     slot->nativeCamera = new NativeCamera(this);
     connect(slot->nativeCamera, &NativeCamera::frameAvailable, this, [this, id](const QImage &image) {
         this->onFrameAvailable(image, id);
+    });
+    connect(slot->nativeCamera, &NativeCamera::audioAvailable, this, [this, id](const QByteArray &data) {
+        if (id == this->m_programSlotId && !this->m_slots[id]->muted) {
+            emit programAudioAvailable(data);
+        }
     });
     connect(slot->nativeCamera, &NativeCamera::positionChanged, this, [this, id](double percent) {
         emit mediaPositionChanged(id, percent);
@@ -323,8 +333,6 @@ void CameraManager::renderLoop() {
 
         if (programFrame.isNull()) {
             qDebug() << "[RenderThread] programFrame is NULL";
-        } else {
-            qDebug() << "[RenderThread] programFrame valid, size:" << programFrame.size();
         }
 
         std::lock_guard<std::mutex> slot_lock(m_slotMutex);
