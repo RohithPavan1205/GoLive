@@ -91,7 +91,8 @@ private:
     int m_width = 1920, m_height = 1080, m_fps = 30, m_bitrate = 4000000;
     qint64 m_frameCount = 0;
     qint64 m_audioFrameCount = 0;
-    
+    qint64 m_streamStartTime = 0;
+
     // Metrics
     std::atomic<qint64> m_totalFrames{0};
     std::atomic<qint64> m_droppedFrames{0};

@@ -448,4 +448,43 @@ void MainWindow::setupOutputControls() {
     for (QToolButton* btn : allBtns) {
         if (btn) btn->setIconSize(QSize(24, 24));
     }
+
+    // Connect streaming state changes to update UI indicators
+    if (stream1Btn || stream2Btn) {
+        connect(m_streamingManager, &StreamingManager::stateChanged, this, [this, stream1Btn, stream2Btn](StreamingManager::State state) {
+            QString buttonStyle = "";
+            QString buttonIcon = ":/icons/Stream.png";
+            
+            if (state == StreamingManager::State::Streaming) {
+                buttonStyle = "background-color: #27ae60; color: white; border-radius: 4px;";
+                buttonIcon = ":/icons/Stream_Active.png";  // Will fallback to regular icon if file doesn't exist
+            } else if (state == StreamingManager::State::Connecting) {
+                buttonStyle = "background-color: #f39c12; color: white; border-radius: 4px;";
+            } else if (state == StreamingManager::State::Failed) {
+                buttonStyle = "background-color: #e74c3c; color: white; border-radius: 4px;";
+            }
+            
+            // Update active stream button(s)
+            if (stream1Btn && stream1Btn->isChecked()) {
+                stream1Btn->setStyleSheet(buttonStyle);
+                stream1Btn->setIcon(QIcon(buttonIcon));
+            }
+            if (stream2Btn && stream2Btn->isChecked()) {
+                stream2Btn->setStyleSheet(buttonStyle);
+                stream2Btn->setIcon(QIcon(buttonIcon));
+            }
+            
+            // Reset to default when streaming stops
+            if (state == StreamingManager::State::Idle || state == StreamingManager::State::Stopping) {
+                if (stream1Btn) {
+                    stream1Btn->setStyleSheet("");
+                    stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
+                }
+                if (stream2Btn) {
+                    stream2Btn->setStyleSheet("");
+                    stream2Btn->setIcon(QIcon(":/icons/Stream.png"));
+                }
+            }
+        });
+    }
 }

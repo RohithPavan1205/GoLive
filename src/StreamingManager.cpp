@@ -61,6 +61,7 @@ bool StreamingManager::startStreaming(const QList<QString> &urls, int width, int
     m_totalFrames = 0;
     m_droppedFrames = 0;
     m_totalBytesSent = 0;
+    m_streamStartTime = 0;
     
     m_workerThread = QThread::create([this]() {
         streamLoop();
@@ -94,12 +95,16 @@ void StreamingManager::stopStreaming() {
 
 void StreamingManager::pushFrame(const QImage &image) {
     if (m_state != State::Streaming) return;
-    
+    if (image.isNull()) {
+        qWarning() << "[StreamingManager] pushFrame called with NULL image!";
+        return;
+    }
     QMutexLocker locker(&m_queueMutex);
     if (m_frameQueue.size() >= MAX_QUEUE_SIZE) {
         m_droppedFrames++;
         return;
     }
+    qDebug() << "[StreamingManager] pushFrame received image, size:" << image.size();
     m_frameQueue.push(image.copy());
 }
 
@@ -252,7 +257,12 @@ void StreamingManager::streamLoop() {
             uint8_t *srcData[1] = { (uint8_t*)img.bits() };
             int srcLinesize[1] = { (int)img.bytesPerLine() };
             sws_scale(m_swsCtx, srcData, srcLinesize, 0, m_height, videoFrame->data, videoFrame->linesize);
-            videoFrame->pts = m_frameCount++;
+
+            // Calculate pts based on wall clock
+            qint64 now = QDateTime::currentMSecsSinceEpoch();
+            if (m_streamStartTime == 0) m_streamStartTime = now;
+            qint64 elapsed = now - m_streamStartTime;
+            videoFrame->pts = (elapsed * m_fps) / 1000;
             m_totalFrames++;
 
             if (avcodec_send_frame(m_videoCodecCtx, videoFrame) >= 0) {

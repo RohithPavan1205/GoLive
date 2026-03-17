@@ -73,6 +73,10 @@ void CameraManager::setupInput(int id, QFrame *container) {
     
     m_slots[id] = slot;
     slot->videoWidget->show();
+    
+    // Set the preview and program slot IDs when they are set up
+    if (id == -1) m_previewSlotId = -1;  // Preview/Staging slot
+    if (id == 0) m_programSlotId = 0;    // Program/Live slot
 }
 
 void CameraManager::setPreviewSlot(int id) {
@@ -315,6 +319,12 @@ void CameraManager::renderLoop() {
             std::lock_guard<std::mutex> frame_lock(m_frameMutex);
             previewFrame = m_latestPreviewSourceFrame;
             programFrame = m_latestProgramSourceFrame;
+        }
+
+        if (programFrame.isNull()) {
+            qDebug() << "[RenderThread] programFrame is NULL";
+        } else {
+            qDebug() << "[RenderThread] programFrame valid, size:" << programFrame.size();
         }
 
         std::lock_guard<std::mutex> slot_lock(m_slotMutex);
