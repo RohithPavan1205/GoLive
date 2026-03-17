@@ -39,6 +39,7 @@ public:
 
 signals:
     void frameAvailable(const QImage &image);
+    void audioAvailable(const QByteArray &data);
     void positionChanged(double positionPercent, double currentTime, double totalTime);
     void playbackFinished();
 
