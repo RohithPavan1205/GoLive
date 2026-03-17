@@ -36,6 +36,8 @@ private slots:
     void onMediaSettingsClicked(int id);
     void onStreamingError(const QString &msg);
     void updateStreamingState();
+    void onStreamingStateChanged(StreamingManager::State state);
+    void onStreamingMetricsUpdated(const StreamingManager::Metrics &metrics);
 
 private:
     QWidget *m_uiRoot;
