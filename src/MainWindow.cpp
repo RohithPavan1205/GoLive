@@ -65,7 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     QTreeWidget *tree = this->findChild<QTreeWidget*>("treeWidget_effects_cats");
     QStackedWidget *stack = this->findChild<QStackedWidget*>("stackedWidget_effects");
     if (tree && stack) {
-        tree->setFixedWidth(130);
+        tree->setMinimumWidth(110);
         m_effectsManager->setupUI(tree, stack, this);
         
         connect(m_effectsManager, &EffectsManager::effectApplied, m_cameraManager, &CameraManager::setEffect);
