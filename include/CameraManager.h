@@ -12,6 +12,9 @@
 #include <QFont>
 #include "NativeCamera.h"
 #include "TextOverlaySettingsDialog.h"
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 class CameraManager : public QObject {
     Q_OBJECT
@@ -36,7 +39,7 @@ public:
 
     void setOutputSettings(int width, int height, int fps);
 
-    void setPreviewSlot(int id) { m_previewSlotId = id; }
+    void setPreviewSlot(int id);
     int getPreviewSlot() const { return m_previewSlotId; }
 
     // Effect Support
@@ -52,6 +55,7 @@ public:
 signals:
     void mediaPositionChanged(int id, double percent);
     void mediaFinished(int id);
+    void programFrameAvailable(const QImage &image);
 
 private slots:
     void onFrameAvailable(const QImage &image, int slotId);
@@ -79,11 +83,25 @@ private:
     QImage m_previewEffectImage;
     QRectF m_previewEffectOpening;
     bool m_previewHasEffect = false;
+    float m_previewEffectAlpha = 0.0f;
+    float m_previewEffectTargetAlpha = 0.0f;
 
     // Effect State (Program/Live)
     QImage m_programEffectImage;
     QRectF m_programEffectOpening;
     bool m_programHasEffect = false;
+    float m_programEffectAlpha = 0.0f;
+    float m_programEffectTargetAlpha = 0.0f;
+
+    // Dissolve Transition State
+    std::atomic<bool> m_isDissolving{false};
+    qint64 m_dissolveStartTime = 0;
+    qint64 m_dissolveDuration = 300; // ms
+    QImage m_dissolveSourceFrame;
+
+    std::atomic<bool> m_previewIsDissolving{false};
+    qint64 m_previewDissolveStartTime = 0;
+    QImage m_previewDissolveSourceFrame;
 
     // Text Overlay State
     TextOverlaySettingsDialog::Settings m_previewText;
@@ -93,7 +111,23 @@ private:
     int m_outputWidth = 1920;
     int m_outputHeight = 1080;
     int m_outputFps = 30;
-    qint64 m_lastFrameTime = 0;
+    qint64 m_lastPreviewFrameTime = 0;
+    qint64 m_lastProgramFrameTime = 0;
+    double m_previewJitter = 0.0;
+    double m_programJitter = 0.0;
+    double m_maxPreviewJitter = 0.0;
+    double m_maxProgramJitter = 0.0;
+
+    // Fixed-interval Render Thread (The OBS Way)
+    std::thread m_renderThread;
+    std::atomic<bool> m_renderThreadRunning{false};
+    std::mutex m_frameMutex;
+    std::mutex m_slotMutex; // Separate mutex for slots
+    QImage m_latestPreviewSourceFrame;
+    QImage m_latestProgramSourceFrame;
+    QImage m_previewCanvas;
+    QImage m_programCanvas;
+    void renderLoop();
 };
 
 #endif // CAMERAMANAGER_H

@@ -1,6 +1,8 @@
 #include "MainWindow.h"
 #include "CameraSelectionDialog.h"
 #include "MediaSelectionDialog.h"
+#include <QScreen>
+#include <QWindow>
 #include <QMessageBox>
 #include <QIcon>
 #include <QDebug>
@@ -69,6 +71,14 @@ MainWindow::MainWindow(QWidget *parent)
         connect(m_effectsManager, &EffectsManager::effectApplied, m_cameraManager, &CameraManager::setEffect);
         connect(m_effectsManager, &EffectsManager::effectCleared, m_cameraManager, &CameraManager::clearEffect);
     }
+
+    m_streamingManager = new StreamingManager(this);
+    connect(m_streamingManager, &StreamingManager::errorOccurred, this, &MainWindow::onStreamingError);
+    connect(m_cameraManager, &CameraManager::programFrameAvailable, m_streamingManager, &StreamingManager::pushFrame);
+
+    m_recordingManager = new RecordingManager(this);
+    connect(m_recordingManager, &RecordingManager::errorOccurred, this, &MainWindow::onStreamingError);
+    connect(m_cameraManager, &CameraManager::programFrameAvailable, m_recordingManager, &RecordingManager::pushFrame);
 
     fixControlsLayout();
     setupUi();
@@ -193,6 +203,89 @@ void MainWindow::onMediaSettingsClicked(int id) {
     }
 }
 
+void MainWindow::onStreamingError(const QString &msg) {
+    QMessageBox::critical(this, "Streaming Error", msg);
+}
+
+void MainWindow::updateStreamingState() {
+    QList<QString> urls;
+    QToolButton *stream1Btn = this->findChild<QToolButton*>("stream1Btn1");
+    QToolButton *stream2Btn = this->findChild<QToolButton*>("stream2Btn1");
+
+    // Handle Stream 1
+    if (stream1Btn && stream1Btn->isChecked()) {
+        if (m_stream1Settings.isExternalMonitor) {
+            if (!m_externalMonitor1) {
+                m_externalMonitor1 = new ExternalMonitorWindow();
+                connect(m_cameraManager, &CameraManager::programFrameAvailable, m_externalMonitor1, &ExternalMonitorWindow::updateFrame);
+            }
+            QList<QScreen*> screens = QGuiApplication::screens();
+            QScreen *target = nullptr;
+            for (QScreen *s : screens) if (s->name() == m_stream1Settings.monitorId) target = s;
+            if (target) {
+                m_externalMonitor1->show();
+                m_externalMonitor1->raise();
+                m_externalMonitor1->activateWindow();
+                if (auto handle = m_externalMonitor1->windowHandle()) {
+                    handle->setScreen(target);
+                }
+                m_externalMonitor1->setGeometry(target->geometry());
+                m_externalMonitor1->showFullScreen();
+            }
+        } else if (m_stream1Settings.isConfigured) {
+            urls.append(m_stream1Settings.server + "/" + m_stream1Settings.streamKey);
+        } else {
+            QMessageBox::warning(this, "Not Configured", "Stream 1 not configured.");
+            stream1Btn->setChecked(false);
+        }
+    } else {
+        if (m_externalMonitor1) {
+            m_externalMonitor1->close();
+            m_externalMonitor1->deleteLater();
+            m_externalMonitor1 = nullptr;
+        }
+    }
+
+    // Handle Stream 2
+    if (stream2Btn && stream2Btn->isChecked()) {
+        if (m_stream2Settings.isExternalMonitor) {
+            if (!m_externalMonitor2) {
+                m_externalMonitor2 = new ExternalMonitorWindow();
+                connect(m_cameraManager, &CameraManager::programFrameAvailable, m_externalMonitor2, &ExternalMonitorWindow::updateFrame);
+            }
+            QList<QScreen*> screens = QGuiApplication::screens();
+            QScreen *target = nullptr;
+            for (QScreen *s : screens) if (s->name() == m_stream2Settings.monitorId) target = s;
+            if (target) {
+                m_externalMonitor2->show();
+                m_externalMonitor2->raise();
+                m_externalMonitor2->activateWindow();
+                if (auto handle = m_externalMonitor2->windowHandle()) {
+                    handle->setScreen(target);
+                }
+                m_externalMonitor2->setGeometry(target->geometry());
+                m_externalMonitor2->showFullScreen();
+            }
+        } else if (m_stream2Settings.isConfigured) {
+            urls.append(m_stream2Settings.server + "/" + m_stream2Settings.streamKey);
+        } else {
+            QMessageBox::warning(this, "Not Configured", "Stream 2 not configured.");
+            stream2Btn->setChecked(false);
+        }
+    } else {
+        if (m_externalMonitor2) {
+            m_externalMonitor2->close();
+            m_externalMonitor2->deleteLater();
+            m_externalMonitor2 = nullptr;
+        }
+    }
+
+    m_streamingManager->stopStreaming();
+    if (!urls.isEmpty()) {
+        m_streamingManager->startStreaming(urls, 1920, 1080, 30, 6000000);
+    }
+}
+
 void MainWindow::setupOutputControls() {
     QComboBox *sizeCombo = this->findChild<QComboBox*>("outputSizeComboBox");
     QComboBox *fpsCombo = this->findChild<QComboBox*>("fpsComboBox");
@@ -274,12 +367,32 @@ void MainWindow::setupOutputControls() {
     }
     if (recordBtn) {
         recordBtn->setIcon(QIcon(":/icons/Record.png"));
-        connect(recordBtn, &QToolButton::clicked, this, [this]() {
-            if (!m_recordingSettings.isConfigured) {
-                QMessageBox::warning(this, "Not Configured", "Please configure recording settings first!");
-                return;
+        recordBtn->setCheckable(true);
+        connect(recordBtn, &QToolButton::clicked, this, [this, recordBtn]() {
+            if (m_recordingManager->isRecording()) {
+                m_recordingManager->stopRecording();
+                recordBtn->setStyleSheet("");
+                recordBtn->setIcon(QIcon(":/icons/Record.png"));
+            } else {
+                if (!m_recordingSettings.isConfigured) {
+                    QMessageBox::warning(this, "Not Configured", "Please configure recording settings first!");
+                    recordBtn->setChecked(false);
+                    return;
+                }
+                
+                QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
+                QString fileName = QString("/GoLive_Record_%1.%2").arg(timestamp).arg(m_recordingSettings.container);
+                QString fullPath = m_recordingSettings.outputPath + fileName;
+                
+                QDir().mkpath(m_recordingSettings.outputPath);
+
+                if (m_recordingManager->startRecording(fullPath, 1920, 1080, 30, m_recordingSettings.quality)) {
+                    recordBtn->setStyleSheet("background-color: #e74c3c; color: white; border-radius: 4px;");
+                    recordBtn->setIcon(QIcon(":/icons/Record_Active.png")); // Fallback if icon exists or just color change
+                } else {
+                    recordBtn->setChecked(false);
+                }
             }
-            // Implementation later
         });
     }
     if (recordSetBtn) {
@@ -291,12 +404,8 @@ void MainWindow::setupOutputControls() {
     }
     if (stream1Btn) {
         stream1Btn->setIcon(QIcon(":/icons/Stream.png"));
-        connect(stream1Btn, &QToolButton::clicked, this, [this]() {
-            if (!m_stream1Settings.isConfigured) {
-                QMessageBox::warning(this, "Not Configured", "Please configure Stream 1 settings first!");
-                return;
-            }
-        });
+        stream1Btn->setCheckable(true);
+        connect(stream1Btn, &QToolButton::clicked, this, &MainWindow::updateStreamingState);
     }
     if (stream1SetBtn) {
         stream1SetBtn->setIcon(QIcon(":/icons/Settings.png"));
@@ -307,12 +416,8 @@ void MainWindow::setupOutputControls() {
     }
     if (stream2Btn) {
         stream2Btn->setIcon(QIcon(":/icons/Stream.png"));
-        connect(stream2Btn, &QToolButton::clicked, this, [this]() {
-            if (!m_stream2Settings.isConfigured) {
-                QMessageBox::warning(this, "Not Configured", "Please configure Stream 2 settings first!");
-                return;
-            }
-        });
+        stream2Btn->setCheckable(true);
+        connect(stream2Btn, &QToolButton::clicked, this, &MainWindow::updateStreamingState);
     }
     if (stream2SetBtn) {
         stream2SetBtn->setIcon(QIcon(":/icons/Settings.png"));

@@ -1,5 +1,5 @@
-#ifndef RECORDINGMANAGER_H
-#define RECORDINGMANAGER_H
+#ifndef STREAMINGMANAGER_H
+#define STREAMINGMANAGER_H
 
 #include <QObject>
 #include <QImage>
@@ -8,7 +8,6 @@
 #include <QMutex>
 #include <QByteArray>
 #include <queue>
-#include <atomic>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -19,15 +18,15 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-class RecordingManager : public QObject {
+class StreamingManager : public QObject {
     Q_OBJECT
 public:
-    explicit RecordingManager(QObject *parent = nullptr);
-    ~RecordingManager();
+    explicit StreamingManager(QObject *parent = nullptr);
+    ~StreamingManager();
 
-    bool startRecording(const QString &filePath, int width, int height, int fps, const QString &quality);
-    void stopRecording();
-    bool isRecording() const { return m_isRecording; }
+    bool startStreaming(const QList<QString> &urls, int width, int height, int fps, int bitrate);
+    void stopStreaming();
+    bool isStreaming() const { return m_isStreaming; }
 
 public slots:
     void pushFrame(const QImage &image);
@@ -38,17 +37,21 @@ signals:
     void statusChanged(bool active);
 
 private:
-    void recordLoop();
-    bool initFFmpeg(const QString &filePath, int width, int height, int fps, const QString &quality);
+    void streamLoop();
+    bool initFFmpeg(const QList<QString> &urls, int width, int height, int fps, int bitrate);
     void cleanupFFmpeg();
 
-    std::atomic<bool> m_isRecording{false};
-    std::atomic<bool> m_shouldStop{false};
+    bool m_isStreaming = false;
+    bool m_shouldStop = false;
     
     // FFmpeg Contexts
-    AVFormatContext *m_formatCtx = nullptr;
-    AVStream *m_videoStream = nullptr;
-    AVStream *m_audioStream = nullptr;
+    struct OutputTarget {
+        AVFormatContext *formatCtx = nullptr;
+        AVStream *videoStream = nullptr;
+        AVStream *audioStream = nullptr;
+    };
+    QList<OutputTarget> m_targets;
+
     AVCodecContext *m_videoCodecCtx = nullptr;
     AVCodecContext *m_audioCodecCtx = nullptr;
     SwsContext *m_swsCtx = nullptr;
@@ -64,4 +67,4 @@ private:
     std::queue<QByteArray> m_audioQueue;
 };
 
-#endif // RECORDINGMANAGER_H
+#endif // STREAMINGMANAGER_H

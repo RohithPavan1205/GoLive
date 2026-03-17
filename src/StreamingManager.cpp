@@ -1,30 +1,29 @@
-#include "RecordingManager.h"
+#include "StreamingManager.h"
 #include <QDebug>
 #include <QDateTime>
-#include <QDir>
 
-RecordingManager::RecordingManager(QObject *parent) : QObject(parent) {
+StreamingManager::StreamingManager(QObject *parent) : QObject(parent) {
     avformat_network_init();
 }
 
-RecordingManager::~RecordingManager() {
-    stopRecording();
+StreamingManager::~StreamingManager() {
+    stopStreaming();
 }
 
-bool RecordingManager::startRecording(const QString &filePath, int width, int height, int fps, const QString &quality) {
-    if (m_isRecording) return false;
+bool StreamingManager::startStreaming(const QList<QString> &urls, int width, int height, int fps, int bitrate) {
+    if (m_isStreaming) return false;
 
-    if (!initFFmpeg(filePath, width, height, fps, quality)) {
+    if (!initFFmpeg(urls, width, height, fps, bitrate)) {
         cleanupFFmpeg();
         return false;
     }
 
-    m_isRecording = true;
+    m_isStreaming = true;
     m_shouldStop = false;
     m_frameCount = 0;
     
     m_workerThread = QThread::create([this]() {
-        recordLoop();
+        streamLoop();
     });
     m_workerThread->start();
     
@@ -32,8 +31,8 @@ bool RecordingManager::startRecording(const QString &filePath, int width, int he
     return true;
 }
 
-void RecordingManager::stopRecording() {
-    if (!m_isRecording) return;
+void StreamingManager::stopStreaming() {
+    if (!m_isStreaming) return;
     
     m_shouldStop = true;
     if (m_workerThread) {
@@ -43,38 +42,33 @@ void RecordingManager::stopRecording() {
     }
     
     cleanupFFmpeg();
-    m_isRecording = false;
+    m_isStreaming = false;
     emit statusChanged(false);
 }
 
-void RecordingManager::pushFrame(const QImage &image) {
-    if (!m_isRecording) return;
+void StreamingManager::pushFrame(const QImage &image) {
+    if (!m_isStreaming) return;
     
     QMutexLocker locker(&m_queueMutex);
-    if (m_frameQueue.size() < 60) { // Larger buffer for recording to handle disk I/O spikes
+    if (m_frameQueue.size() < 30) {
         m_frameQueue.push(image.copy());
     }
 }
 
-void RecordingManager::pushAudio(const QByteArray &data) {
-    if (!m_isRecording) return;
+void StreamingManager::pushAudio(const QByteArray &data) {
+    if (!m_isStreaming) return;
     QMutexLocker locker(&m_queueMutex);
     if (m_audioQueue.size() < 100) {
         m_audioQueue.push(data);
     }
 }
 
-bool RecordingManager::initFFmpeg(const QString &filePath, int width, int height, int fps, const QString &quality) {
+bool StreamingManager::initFFmpeg(const QList<QString> &urls, int width, int height, int fps, int bitrate) {
     m_width = width;
     m_height = height;
     m_fps = fps;
 
-    // 1. Output Context
-    avformat_alloc_output_context2(&m_formatCtx, nullptr, nullptr, filePath.toUtf8().constData());
-    if (!m_formatCtx) return false;
-
-    // 2. Video Encoder (HEVC/H.264)
-    // Use Hardware Acceleration on Mac
+    // 1. Video Encoder (Global for all targets)
     const AVCodec *videoCodec = avcodec_find_encoder_by_name("h264_videotoolbox");
     if (!videoCodec) videoCodec = avcodec_find_encoder(AV_CODEC_ID_H264);
     
@@ -83,23 +77,14 @@ bool RecordingManager::initFFmpeg(const QString &filePath, int width, int height
     m_videoCodecCtx->height = height;
     m_videoCodecCtx->time_base = {1, fps};
     m_videoCodecCtx->framerate = {fps, 1};
-    m_videoCodecCtx->pix_fmt = AV_PIX_FMT_NV12; // Standard for H.264 hardware encoders
-    
-    // Quality to Bitrate Mapping (OBS-like)
-    int64_t bitrate = 6000000;
-    if (quality.contains("Low")) bitrate = 2500000;
-    else if (quality.contains("Medium")) bitrate = 6000000;
-    else if (quality.contains("High")) bitrate = 12000000;
-    else if (quality.contains("Indistinguishable")) bitrate = 25000000;
-    
+    m_videoCodecCtx->pix_fmt = AV_PIX_FMT_NV12;
     m_videoCodecCtx->bit_rate = bitrate;
     m_videoCodecCtx->gop_size = fps * 2;
-    m_videoCodecCtx->max_b_frames = 2;
     m_videoCodecCtx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
     if (avcodec_open2(m_videoCodecCtx, videoCodec, nullptr) < 0) return false;
 
-    // 2b. Audio Encoder (AAC)
+    // 2. Audio Encoder (Global for all targets)
     const AVCodec *audioCodec = avcodec_find_encoder(AV_CODEC_ID_AAC);
     m_audioCodecCtx = avcodec_alloc_context3(audioCodec);
     m_audioCodecCtx->sample_fmt = AV_SAMPLE_FMT_FLTP;
@@ -111,25 +96,37 @@ bool RecordingManager::initFFmpeg(const QString &filePath, int width, int height
 
     if (avcodec_open2(m_audioCodecCtx, audioCodec, nullptr) < 0) return false;
 
-    // 3. Create Streams
-    m_videoStream = avformat_new_stream(m_formatCtx, videoCodec);
-    avcodec_parameters_from_context(m_videoStream->codecpar, m_videoCodecCtx);
-    m_videoStream->time_base = m_videoCodecCtx->time_base;
+    // 3. Create Outputs for each URL
+    for (const QString &url : urls) {
+        OutputTarget target;
+        avformat_alloc_output_context2(&target.formatCtx, nullptr, "flv", url.toUtf8().constData());
+        if (!target.formatCtx) continue;
 
-    m_audioStream = avformat_new_stream(m_formatCtx, audioCodec);
-    avcodec_parameters_from_context(m_audioStream->codecpar, m_audioCodecCtx);
-    // Don't manually set stream timebase, let the muxer decide in write_header
+        target.videoStream = avformat_new_stream(target.formatCtx, videoCodec);
+        avcodec_parameters_from_context(target.videoStream->codecpar, m_videoCodecCtx);
+        target.videoStream->time_base = m_videoCodecCtx->time_base;
 
-    // 4. Open File
-    if (!(m_formatCtx->oformat->flags & AVFMT_NOFILE)) {
-        if (avio_open(&m_formatCtx->pb, filePath.toUtf8().constData(), AVIO_FLAG_WRITE) < 0) return false;
+        target.audioStream = avformat_new_stream(target.formatCtx, audioCodec);
+        avcodec_parameters_from_context(target.audioStream->codecpar, m_audioCodecCtx);
+        target.audioStream->time_base = m_audioCodecCtx->time_base;
+
+        if (!(target.formatCtx->oformat->flags & AVFMT_NOFILE)) {
+            if (avio_open(&target.formatCtx->pb, url.toUtf8().constData(), AVIO_FLAG_WRITE) < 0) {
+                avformat_free_context(target.formatCtx);
+                continue;
+            }
+        }
+
+        if (avformat_write_header(target.formatCtx, nullptr) < 0) {
+            avformat_free_context(target.formatCtx);
+            continue;
+        }
+        m_targets.append(target);
     }
 
-    if (avformat_write_header(m_formatCtx, nullptr) < 0) return false;
+    if (m_targets.isEmpty()) return false;
 
-    // 5. Converters
     m_swsCtx = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_NV12, SWS_BICUBIC, nullptr, nullptr, nullptr);
-    
     m_swrCtx = swr_alloc();
     AVChannelLayout in_ch_layout;
     av_channel_layout_default(&in_ch_layout, 2);
@@ -140,7 +137,7 @@ bool RecordingManager::initFFmpeg(const QString &filePath, int width, int height
     return true;
 }
 
-void RecordingManager::recordLoop() {
+void StreamingManager::streamLoop() {
     AVFrame *videoFrame = av_frame_alloc();
     videoFrame->format = m_videoCodecCtx->pix_fmt;
     videoFrame->width = m_videoCodecCtx->width;
@@ -156,7 +153,7 @@ void RecordingManager::recordLoop() {
 
     AVPacket *pkt = av_packet_alloc();
 
-    while (!m_shouldStop || !m_frameQueue.empty() || !m_audioQueue.empty()) {
+    while (!m_shouldStop) {
         QImage img;
         QByteArray audioData;
         {
@@ -169,14 +166,17 @@ void RecordingManager::recordLoop() {
             uint8_t *srcData[1] = { (uint8_t*)img.bits() };
             int srcLinesize[1] = { (int)img.bytesPerLine() };
             sws_scale(m_swsCtx, srcData, srcLinesize, 0, m_height, videoFrame->data, videoFrame->linesize);
-            
             videoFrame->pts = m_frameCount++;
 
             if (avcodec_send_frame(m_videoCodecCtx, videoFrame) >= 0) {
                 while (avcodec_receive_packet(m_videoCodecCtx, pkt) >= 0) {
-                    av_packet_rescale_ts(pkt, m_videoCodecCtx->time_base, m_videoStream->time_base);
-                    pkt->stream_index = m_videoStream->index;
-                    av_interleaved_write_frame(m_formatCtx, pkt);
+                    for (auto &target : m_targets) {
+                        AVPacket *outPkt = av_packet_clone(pkt);
+                        av_packet_rescale_ts(outPkt, m_videoCodecCtx->time_base, target.videoStream->time_base);
+                        outPkt->stream_index = target.videoStream->index;
+                        av_interleaved_write_frame(target.formatCtx, outPkt);
+                        av_packet_free(&outPkt);
+                    }
                     av_packet_unref(pkt);
                 }
             }
@@ -184,7 +184,7 @@ void RecordingManager::recordLoop() {
 
         if (!audioData.isEmpty()) {
             const uint8_t *in_data[1] = { (const uint8_t*)audioData.constData() };
-            int in_samples = audioData.size() / 4; // S16 Stereo
+            int in_samples = audioData.size() / 4; 
             int out_samples = swr_convert(m_swrCtx, audioFrame->data, audioFrame->nb_samples, in_data, in_samples);
             
             if (out_samples > 0) {
@@ -192,32 +192,35 @@ void RecordingManager::recordLoop() {
                 m_audioFrameCount += out_samples;
                 if (avcodec_send_frame(m_audioCodecCtx, audioFrame) >= 0) {
                     while (avcodec_receive_packet(m_audioCodecCtx, pkt) >= 0) {
-                        av_packet_rescale_ts(pkt, m_audioCodecCtx->time_base, m_audioStream->time_base);
-                        pkt->stream_index = m_audioStream->index;
-                        av_interleaved_write_frame(m_formatCtx, pkt);
+                        for (auto &target : m_targets) {
+                            AVPacket *outPkt = av_packet_clone(pkt);
+                            av_packet_rescale_ts(outPkt, m_audioCodecCtx->time_base, target.audioStream->time_base);
+                            outPkt->stream_index = target.audioStream->index;
+                            av_interleaved_write_frame(target.formatCtx, outPkt);
+                            av_packet_free(&outPkt);
+                        }
                         av_packet_unref(pkt);
                     }
                 }
             }
         }
 
-        if (img.isNull() && audioData.isEmpty()) {
-            QThread::msleep(5);
-        }
+        if (img.isNull() && audioData.isEmpty()) QThread::msleep(5);
     }
 
-    av_write_trailer(m_formatCtx);
+    for (auto &target : m_targets) av_write_trailer(target.formatCtx);
     av_frame_free(&videoFrame);
     av_frame_free(&audioFrame);
     av_packet_free(&pkt);
 }
 
-void RecordingManager::cleanupFFmpeg() {
-    if (m_formatCtx) {
-        if (!(m_formatCtx->oformat->flags & AVFMT_NOFILE)) avio_closep(&m_formatCtx->pb);
-        avformat_free_context(m_formatCtx);
-        m_formatCtx = nullptr;
+void StreamingManager::cleanupFFmpeg() {
+    for (auto &target : m_targets) {
+        if (!(target.formatCtx->oformat->flags & AVFMT_NOFILE)) avio_closep(&target.formatCtx->pb);
+        avformat_free_context(target.formatCtx);
     }
+    m_targets.clear();
+
     if (m_swrCtx) { swr_free(&m_swrCtx); m_swrCtx = nullptr; }
     if (m_swsCtx) { sws_freeContext(m_swsCtx); m_swsCtx = nullptr; }
     if (m_videoCodecCtx) { avcodec_free_context(&m_videoCodecCtx); m_videoCodecCtx = nullptr; }

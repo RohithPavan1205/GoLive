@@ -15,6 +15,9 @@
 #include "RecordingSettingsDialog.h"
 #include "StreamingSettingsDialog.h"
 #include "TextOverlaySettingsDialog.h"
+#include "StreamingManager.h"
+#include "RecordingManager.h"
+#include "ExternalMonitorWindow.h"
 
 class MainWindow : public QMainWindow
 {
@@ -31,17 +34,23 @@ protected:
 private slots:
     void onSettingsClicked(int id);
     void onMediaSettingsClicked(int id);
+    void onStreamingError(const QString &msg);
+    void updateStreamingState();
 
 private:
     QWidget *m_uiRoot;
     CameraManager *m_cameraManager;
     EffectsManager *m_effectsManager;
+    StreamingManager *m_streamingManager;
+    RecordingManager *m_recordingManager;
     
     // Config State
     RecordingSettingsDialog::Settings m_recordingSettings;
     StreamingSettingsDialog::Settings m_stream1Settings;
     StreamingSettingsDialog::Settings m_stream2Settings;
     TextOverlaySettingsDialog::Settings m_textSettings;
+    ExternalMonitorWindow *m_externalMonitor1 = nullptr;
+    ExternalMonitorWindow *m_externalMonitor2 = nullptr;
 
     void setupUi();
     void setupOutputControls();

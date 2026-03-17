@@ -23,6 +23,9 @@ set(HEADERS
     include/RecordingSettingsDialog.h
     include/StreamingSettingsDialog.h
     include/TextOverlaySettingsDialog.h
+    include/StreamingManager.h
+    include/RecordingManager.h
+    include/ExternalMonitorWindow.h
 )
 
 set(SOURCES
@@ -33,8 +36,15 @@ set(SOURCES
     src/MediaSelectionDialog.cpp
     src/EffectsManager.cpp
     src/NativeCamera.mm
+    src/StreamingManager.cpp
+    src/RecordingManager.cpp
     resources.qrc
 )
+
+# FFmpeg Integration
+include_directories(SYSTEM /usr/local/include /opt/homebrew/include)
+link_directories(/usr/local/lib /opt/homebrew/lib)
+set(FFMPEG_LIBS avformat avcodec avutil swscale swresample)
 
 add_executable(JaiHanuman MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 
@@ -49,6 +59,7 @@ target_link_libraries(JaiHanuman PRIVATE
     Qt6::Multimedia 
     Qt6::MultimediaWidgets
     Qt6::Concurrent
+    ${FFMPEG_LIBS}
 )
 
 if(APPLE)
