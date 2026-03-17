@@ -7,6 +7,7 @@
 #include <QString>
 #include <QMutex>
 #include <QByteArray>
+#include <QElapsedTimer>
 #include <queue>
 #include <atomic>
 
@@ -17,6 +18,7 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 #include <libswresample/swresample.h>
+#include <libavutil/audio_fifo.h>
 }
 
 class RecordingManager : public QObject {
@@ -38,7 +40,9 @@ signals:
     void statusChanged(bool active);
 
 private:
-    void recordLoop();
+    // OBS-Style: separate video encode and audio encode loops
+    void videoEncodeLoop();
+    void audioEncodeLoop();
     bool initFFmpeg(const QString &filePath, int width, int height, int fps, const QString &quality);
     void cleanupFFmpeg();
 
@@ -54,14 +58,34 @@ private:
     SwsContext *m_swsCtx = nullptr;
     SwrContext *m_swrCtx = nullptr;
     
-    int m_width, m_height, m_fps;
-    qint64 m_frameCount = 0;
-    qint64 m_audioFrameCount = 0;
+    int m_width = 1920, m_height = 1080, m_fps = 30;
+
+    // Master Clock (OBS-Style)
+    QElapsedTimer m_masterClock;
+
+    // Video: frame-index PTS
+    qint64 m_videoFrameIndex = 0;
+
+    // Audio: sample-count PTS (continuous, never stops)
+    qint64 m_audioSampleCount = 0;
+
+    // Audio FIFO
+    AVAudioFifo *m_audioFifo = nullptr;
+    QMutex m_audioFifoMutex;
+
+    // Threads
+    QThread *m_videoThread = nullptr;
+    QThread *m_audioThread = nullptr;
     
-    QThread *m_workerThread = nullptr;
-    QMutex m_queueMutex;
-    std::queue<QImage> m_frameQueue;
-    std::queue<QByteArray> m_audioQueue;
+    // Video frame queue
+    QMutex m_videoQueueMutex;
+    std::queue<QImage> m_videoFrameQueue;
+
+    // Muxer lock
+    QMutex m_muxMutex;
+
+    static const int AUDIO_SAMPLE_RATE = 48000;
+    static const int AUDIO_CHANNELS = 2;
 };
 
 #endif // RECORDINGMANAGER_H
