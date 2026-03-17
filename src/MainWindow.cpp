@@ -73,12 +73,16 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     m_streamingManager = new StreamingManager(this);
-    connect(m_streamingManager, &StreamingManager::errorOccurred, this, &MainWindow::onStreamingError);
-    connect(m_cameraManager, &CameraManager::programFrameAvailable, m_streamingManager, &StreamingManager::pushFrame);
+    // Use QueuedConnection for UI-facing signals (CameraManager emits from a raw std::thread)
+    connect(m_streamingManager, &StreamingManager::errorOccurred, this, &MainWindow::onStreamingError, Qt::QueuedConnection);
+    // DirectConnection is safe here because pushFrame and pushAudio are protected by their internal mutexes
+    connect(m_cameraManager, &CameraManager::programFrameAvailable, m_streamingManager, &StreamingManager::pushFrame, Qt::DirectConnection);
+    connect(m_cameraManager, &CameraManager::programAudioAvailable, m_streamingManager, &StreamingManager::pushAudio, Qt::DirectConnection);
 
     m_recordingManager = new RecordingManager(this);
-    connect(m_recordingManager, &RecordingManager::errorOccurred, this, &MainWindow::onStreamingError);
-    connect(m_cameraManager, &CameraManager::programFrameAvailable, m_recordingManager, &RecordingManager::pushFrame);
+    connect(m_recordingManager, &RecordingManager::errorOccurred, this, &MainWindow::onStreamingError, Qt::QueuedConnection);
+    connect(m_cameraManager, &CameraManager::programFrameAvailable, m_recordingManager, &RecordingManager::pushFrame, Qt::DirectConnection);
+    connect(m_cameraManager, &CameraManager::programAudioAvailable, m_recordingManager, &RecordingManager::pushAudio, Qt::DirectConnection);
 
     fixControlsLayout();
     setupUi();
